@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GT26 Maintenance Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;600;700&display=swap');
+        body { background-color: #0f172a; font-family: 'Chakra Petch', sans-serif; color: #e2e8f0; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border-radius: 1.25rem; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .input-field { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: white; transition: all 0.3s; }
+        .input-field:focus { border-color: #10b981; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3); outline: none; }
+        input::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+        .swal2-popup { background: #1e293b !important; color: #e2e8f0 !important; border-radius: 1.25rem !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent uppercase">Maintenance Report</h1>
+                <p class="text-slate-400">รายงานผลการซ่อมบำรุงตามแผน</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <a href="https://docs.google.com/spreadsheets/d/13WHRfiv_sck1McHVGOm_8BzDhU-sqy80JMIerBt4xRo/edit#gid=0" target="_blank" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 py-2 px-4 rounded-xl transition-all border border-blue-500/30 flex items-center">
+                    <i class="fas fa-table mr-2"></i> ตรวจสอบข้อมูลใน Sheets
+                </a>
+                <button onclick="window.location.href='index.html'" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 px-4 rounded-xl transition-all border border-slate-700 flex items-center">
+                    <i class="fas fa-chevron-left mr-2"></i> กลับหน้าหลัก
+                </button>
+            </div>
+        </header>
+
+        <div class="glass-card p-8 shadow-2xl border-t-4 border-emerald-500">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-semibold text-emerald-400 uppercase mb-2 tracking-wider">วันที่บันทึกรายงาน</label>
+                    <input type="date" id="reportDate" class="input-field w-full md:w-1/3 p-3 rounded-xl">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-2 tracking-wider">Type (ประเภทการซ่อม)</label>
+                    <select id="maintType" onchange="autoFetchSetNumber()" class="input-field w-full p-3 rounded-xl appearance-none">
+                        <option value="Type A1">Type A1 (9k)</option>
+                        <option value="Type B">Type B (18k)</option>
+                        <option value="Type A2">Type A2 (27k)</option>
+                        <option value="Type C">Type C (36k)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-2 tracking-wider">ครั้งที่ (Set)</label>
+                    <input type="number" id="maintSet" placeholder="กำลังโหลด..." class="input-field w-full p-3 rounded-xl text-center bg-emerald-500/5">
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-xs font-semibold text-blue-400 uppercase tracking-wider">Start (เริ่มต้น)</label>
+                    <div class="flex gap-2">
+                        <input type="date" id="startDate" class="input-field flex-1 p-3 rounded-xl">
+                        <input type="time" id="startTime" value="08:00" class="input-field w-32 p-3 rounded-xl text-center">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-xs font-semibold text-blue-400 uppercase tracking-wider">Finish (เสร็จสิ้น)</label>
+                    <div class="flex gap-2">
+                        <input type="date" id="finishDate" class="input-field flex-1 p-3 rounded-xl">
+                        <input type="time" id="finishTime" value="17:00" class="input-field w-32 p-3 rounded-xl text-center">
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 bg-slate-900/50 p-4 rounded-2xl border border-slate-700/50">
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-2 tracking-wider">เวลาที่ใช้ทั้งหมด (วัน)</label>
+                    <div class="flex items-center gap-4">
+                        <input type="text" id="durationDays" value="0" readonly class="input-field w-full md:w-1/3 p-3 rounded-xl text-2xl font-bold text-emerald-400 bg-transparent border-none">
+                        <span class="text-slate-500 text-sm"><i class="fas fa-magic mr-1"></i> คำนวณให้อัตโนมัติ</span>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-2 tracking-wider">Comment</label>
+                    <textarea id="comment" rows="4" placeholder="ระบุรายละเอียด..." class="input-field w-full p-4 rounded-xl resize-none"></textarea>
+                </div>
+
+                <div class="md:col-span-2 mt-4">
+                    <button onclick="confirmAndSubmit()" id="btnSubmit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl transition-all shadow-lg flex justify-center items-center text-lg">
+                        <i class="fas fa-save mr-2"></i> บันทึกข้อมูลรายงาน
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // อัปเดตลิงก์ App Script URL ล่าสุดที่คุณให้มา
+        const REPORT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx7FXmy1jiat9pHO06_mmjcyCfDwJolDIvT5fl9-58yCSrDwp6RVgbuT80an9hrwitE/exec';
+
+        document.getElementById('reportDate').valueAsDate = new Date();
+
+        async function autoFetchSetNumber() {
+            const typeFull = document.getElementById('maintType').value;
+            const setInput = document.getElementById('maintSet');
+            
+            // ล้างคำว่า "Type " เพื่อให้ Key ตรงกับหน้า Counter ใน Sheet (A1, B, A2, C)
+            const typeKey = typeFull.replace("Type ", "").trim();
+            
+            setInput.placeholder = "กำลังโหลด...";
+            try {
+                const res = await fetch(REPORT_SCRIPT_URL);
+                const counts = await res.json();
+                // แสดงผล "ครั้งปัจจุบัน" โดยนำค่าที่นับได้จริง + 1
+                setInput.value = (counts[typeKey] || 0) + 1;
+            } catch (e) { 
+                console.log("Fetch Set Error", e);
+                setInput.placeholder = "ใส่เลขครั้งที่"; 
+            }
+        }
+
+        window.onload = autoFetchSetNumber;
+
+        function calculateDuration() {
+            const startD = document.getElementById('startDate').value;
+            const startT = document.getElementById('startTime').value;
+            const finishD = document.getElementById('finishDate').value;
+            const finishT = document.getElementById('finishTime').value;
+            if (startD && finishD) {
+                const start = new Date(`${startD}T${startT}`);
+                const finish = new Date(`${finishD}T${finishT}`);
+                const diff = finish - start;
+                if (diff < 0) {
+                    document.getElementById('durationDays').value = "Error";
+                    return;
+                }
+                const days = diff / (1000 * 60 * 60 * 24);
+                document.getElementById('durationDays').value = days.toFixed(2);
+            }
+        }
+
+        ['startDate', 'startTime', 'finishDate', 'finishTime'].forEach(id => {
+            document.getElementById(id).addEventListener('change', calculateDuration);
+        });
+
+        async function confirmAndSubmit() {
+            const result = await Swal.fire({
+                title: 'ยืนยันการบันทึก?',
+                text: `บันทึกข้อมูล ${document.getElementById('maintType').value} ครั้งที่ ${document.getElementById('maintSet').value}`,
+                icon: 'question', 
+                showCancelButton: true, 
+                confirmButtonColor: '#10b981',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonText: 'ตกลง'
+            });
+            if (result.isConfirmed) executeSubmit();
+        }
+
+        async function executeSubmit() {
+            const btn = document.getElementById('btnSubmit');
+            const data = {
+                reportDate: document.getElementById('reportDate').value,
+                type: document.getElementById('maintType').value,
+                set: document.getElementById('maintSet').value,
+                start: `${document.getElementById('startDate').value} ${document.getElementById('startTime').value}`,
+                finish: `${document.getElementById('finishDate').value} ${document.getElementById('finishTime').value}`,
+                duration: document.getElementById('durationDays').value,
+                comment: document.getElementById('comment').value
+            };
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
+            try {
+                await fetch(REPORT_SCRIPT_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    body: JSON.stringify(data) 
+                });
+                Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: 'บันทึกประวัติและอัปเดต Counter แล้ว', timer: 2000 }).then(() => {
+                    window.location.href = 'index.html';
+                });
+            } catch (e) { 
+                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error'); 
+                btn.disabled = false; 
+                btn.innerHTML = '<i class="fas fa-save mr-2"></i> บันทึกข้อมูลรายงาน';
+            }
+        }
+    </script>
+</body>
+</html>
