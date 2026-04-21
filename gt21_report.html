@@ -74,7 +74,8 @@
     </div>
 
     <script>
-        const REPORT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx7FXmy1jiat9pHO06_mmjcyCfDwJolDIvT5fl9-58yCSrDwp6RVgbuT80an9hrwitE/exec';
+        // อัปเดตลิงก์ใหม่เรียบร้อยแล้ว
+        const REPORT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzjJxJCm_dWwG5-CII1ijfjxcR6DWXxP4aMMU6n9suySwMvaArRzLaiLVPYgV9yqqQv/exec';
 
         document.getElementById('reportDate').valueAsDate = new Date();
 
@@ -106,7 +107,6 @@
                 set: document.getElementById('maintSet').value,
                 start: startDate,
                 finish: finishDate,
-                // คำนวณ duration เหมือนกับไฟล์ GT22
                 duration: Math.ceil((new Date(finishDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1,
                 comment: document.getElementById('comment').value
             };
@@ -114,7 +114,7 @@
             btn.disabled = true;
             btn.innerHTML = 'กำลังบันทึก...';
             try {
-                // แก้ไข: นำ mode: 'no-cors' ออก เพื่อให้ส่งข้อมูลเข้าบันทึกใน Sheet ได้สำเร็จ
+                // แก้ไข: นำ no-cors ออกเพื่อให้ข้อมูลส่งเข้า Sheet ได้สำเร็จ
                 await fetch(REPORT_SCRIPT_URL, { 
                     method: 'POST', 
                     body: JSON.stringify(data) 
