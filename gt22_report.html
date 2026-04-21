@@ -74,7 +74,8 @@
     </div>
 
     <script>
-        const REPORT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwCwjK5Xc5hwNV0KnS8NE7K3wAOIoqJSq38kMnIZ_WT0I_3QYj_8xe1PhJgkEf4VYnc/exec';
+        // อัปเดตลิงก์ใหม่ตรงนี้
+        const REPORT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzV2auLkbvgTILRhcNp_Rx0HorrqlmVpgsVYVXqL36mDTy0A7s9IC1CB-S_3FqcN-cG/exec';
 
         document.getElementById('reportDate').valueAsDate = new Date();
 
@@ -91,15 +92,25 @@
         window.onload = autoFetchSetNumber;
 
         async function executeSubmit() {
+            const startDate = document.getElementById('startDate').value;
+            const finishDate = document.getElementById('finishDate').value;
+            
+            if (!startDate || !finishDate) {
+                Swal.fire('คำเตือน', 'กรุณาระบุวันที่เริ่มและวันที่เสร็จสิ้น', 'warning');
+                return;
+            }
+
             const btn = document.getElementById('btnSubmit');
             const data = {
                 reportDate: document.getElementById('reportDate').value,
                 type: document.getElementById('maintType').value,
                 set: document.getElementById('maintSet').value,
-                start: document.getElementById('startDate').value,
-                finish: document.getElementById('finishDate').value,
+                start: startDate,
+                finish: finishDate,
+                duration: Math.ceil((new Date(finishDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1,
                 comment: document.getElementById('comment').value
             };
+            
             btn.disabled = true;
             btn.innerHTML = 'กำลังบันทึก...';
             try {
