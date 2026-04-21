@@ -74,7 +74,7 @@
     </div>
 
     <script>
-        const REPORT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx7FXmy1jiat9pHO06_mmjcyCfDwJolDIvT5fl9-58yCSrDwp6RVgbuT80an9hrwitE/exec';
+        const REPORT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwCwjK5Xc5hwNV0KnS8NE7K3wAOIoqJSq38kMnIZ_WT0I_3QYj_8xe1PhJgkEf4VYnc/exec';
 
         document.getElementById('reportDate').valueAsDate = new Date();
 
@@ -105,7 +105,6 @@
             try {
                 await fetch(REPORT_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
                 Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: 'บันทึกเรียบร้อย' }).then(() => {
-                    // กลับไปยังหน้าพยากรณ์ของ GT22
                     window.location.href = 'gt22_predict.html';
                 });
             } catch (e) { 
