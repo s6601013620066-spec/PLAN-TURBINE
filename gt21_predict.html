@@ -23,7 +23,11 @@
                 <p class="text-slate-400">ระบบบันทึกและพยากรณ์แผนซ่อมบำรุงเครื่อง GT21</p>
             </div>
             
-            <div class="flex gap-3">
+            <div class="flex flex-wrap justify-center gap-3">
+                <a href="https://docs.google.com/spreadsheets/d/13WHRfiv_sck1McHVGOm_8BzDhU-sqy80JMIerBt4xRo/edit?gid=0#gid=0" target="_blank" class="bg-amber-600/20 hover:bg-amber-600/40 text-amber-400 border border-amber-500/50 font-semibold py-2.5 px-6 rounded-xl transition-all flex items-center shadow-lg">
+                    <i class="fas fa-table mr-2"></i> ตรวจสอบ Google Sheet
+                </a>
+
                 <button onclick="window.location.href='gt21_report.html'" class="bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/50 font-semibold py-2.5 px-6 rounded-xl transition-all flex items-center shadow-lg">
                     <i class="fas fa-clipboard-list mr-2"></i> รายงานการซ่อมบำรุง
                 </button>
@@ -188,10 +192,9 @@
             ];
 
             const baseDate = new Date(baseDateInput);
-            let lastFinishDate = null;
             let nextType = ""; let startStr = ""; let finishStr = "";
 
-            schedule.forEach((item, index) => {
+            schedule.forEach((item) => {
                 const dayEl = document.getElementById(`${item.id}_days`);
                 const startEl = document.getElementById(`${item.id}_start`);
                 const finishEl = document.getElementById(`${item.id}_finish`);
@@ -200,11 +203,10 @@
                     dayEl.innerText = "OVERDUE";
                     startEl.innerText = "ผ่านมาแล้ว";
                     finishEl.innerText = "-";
-                    lastFinishDate = new Date(baseDate);
                     return;
                 }
 
-                let daysUntil = Math.floor((item.limit - (currentEOH % 36000)) / avgRate) + offlineDays;
+                let daysUntil = Math.floor((item.limit - currentEOH) / avgRate) + offlineDays;
                 let startDate = new Date(baseDate);
                 startDate.setDate(baseDate.getDate() + daysUntil);
                 
