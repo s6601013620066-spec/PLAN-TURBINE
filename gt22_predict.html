@@ -60,20 +60,33 @@
             </div>
 
             <div class="pt-6 border-t border-slate-700/50">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-2">เริ่มหยุด (Offline Start)</label>
-                        <input type="date" id="offlineStart" class="input-field w-full p-3 rounded-xl border-red-500/20">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-2">สิ้นสุดการหยุด (Offline End)</label>
-                        <input type="date" id="offlineEnd" class="input-field w-full p-3 rounded-xl border-emerald-500/20">
-                    </div>
-                    <div class="flex items-center">
-                        <div id="offlineDisplay" class="text-sm font-medium text-slate-400 italic bg-slate-800/50 p-3 rounded-xl w-full text-center border border-dashed border-slate-600">
-                            เครื่องหยุดทำงาน 0 วัน
+                <div class="flex justify-between items-center mb-4">
+                    <label class="block text-xs font-semibold text-slate-500 uppercase">ช่วงเวลาที่เครื่องหยุดทำงาน (Offline Periods)</label>
+                    <button type="button" onclick="addOfflineRow()" class="text-xs bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 py-1.5 px-4 rounded-lg border border-blue-500/30 transition-all">
+                        <i class="fas fa-plus mr-1"></i> เพิ่มช่วงวันหยุด
+                    </button>
+                </div>
+                
+                <div id="offline-container" class="space-y-3">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 offline-row bg-slate-800/30 p-4 rounded-2xl border border-slate-700/30">
+                        <div>
+                            <label class="block text-[10px] text-slate-500 mb-1">เริ่มหยุด</label>
+                            <input type="date" class="offline-start input-field w-full p-2 rounded-lg border-red-500/20" onchange="updateOfflineDays()">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-500 mb-1">สิ้นสุด</label>
+                            <input type="date" class="offline-end input-field w-full p-2 rounded-lg border-emerald-500/20" onchange="updateOfflineDays()">
+                        </div>
+                        <div class="flex items-end">
+                            <div class="offline-item-display text-xs text-slate-400 italic bg-slate-900/50 p-2.5 rounded-lg w-full text-center border border-dashed border-slate-700">
+                                รอระบุวันที่
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                <div id="offlineDisplay" class="mt-4 text-center text-sm font-medium text-slate-400 bg-slate-800/50 py-2 rounded-xl border border-slate-700/50">
+                    เครื่องหยุดทำงานรวม 0 วัน
                 </div>
             </div>
         </div>
@@ -128,33 +141,72 @@
     </div>
 
     <script>
-        // อัปเดตลิงก์ใหม่ตรงนี้
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzV2auLkbvgTILRhcNp_Rx0HorrqlmVpgsVYVXqL36mDTy0A7s9IC1CB-S_3FqcN-cG/exec';
-
+        
         document.getElementById('baseDate').valueAsDate = new Date();
 
-        function updateOfflineDays() {
-            const start = document.getElementById('offlineStart').value;
-            const end = document.getElementById('offlineEnd').value;
-            const display = document.getElementById('offlineDisplay');
-            if (start && end) {
-                const startDate = new Date(start);
-                const endDate = new Date(end);
-                const diffTime = endDate - startDate;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                if (diffDays >= 0) {
-                    display.innerText = `เลื่อนแผนออกไป +${diffDays} วัน`;
-                    display.classList.add('text-amber-400', 'font-bold');
-                    return diffDays;
-                }
-            }
-            display.innerText = "เครื่องหยุดทำงาน 0 วัน";
-            display.classList.remove('text-amber-400', 'font-bold');
-            return 0;
+        function addOfflineRow() {
+            const container = document.getElementById('offline-container');
+            const newRow = document.createElement('div');
+            newRow.className = 'grid grid-cols-1 md:grid-cols-3 gap-6 offline-row bg-slate-800/30 p-4 rounded-2xl border border-slate-700/30 relative';
+            newRow.innerHTML = `
+                <div>
+                    <label class="block text-[10px] text-slate-500 mb-1">เริ่มหยุด</label>
+                    <input type="date" class="offline-start input-field w-full p-2 rounded-lg border-red-500/20" onchange="updateOfflineDays()">
+                </div>
+                <div>
+                    <label class="block text-[10px] text-slate-500 mb-1">สิ้นสุด</label>
+                    <input type="date" class="offline-end input-field w-full p-2 rounded-lg border-emerald-500/20" onchange="updateOfflineDays()">
+                </div>
+                <div class="flex items-end gap-2">
+                    <div class="offline-item-display text-xs text-slate-400 italic bg-slate-900/50 p-2.5 rounded-lg w-full text-center border border-dashed border-slate-700">
+                        รอระบุวันที่
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove(); updateOfflineDays();" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 p-2.5 rounded-lg border border-red-500/30">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(newRow);
         }
 
-        document.getElementById('offlineStart').addEventListener('change', updateOfflineDays);
-        document.getElementById('offlineEnd').addEventListener('change', updateOfflineDays);
+        function updateOfflineDays() {
+            const starts = document.querySelectorAll('.offline-start');
+            const ends = document.querySelectorAll('.offline-end');
+            const displays = document.querySelectorAll('.offline-item-display');
+            let totalDays = 0;
+            let summary = [];
+
+            const formatDate = (dateStr) => {
+                if (!dateStr) return "";
+                const [y, m, d] = dateStr.split('-');
+                return `${d}/${m}/${y}`;
+            };
+
+            starts.forEach((el, i) => {
+                const startVal = el.value;
+                const endVal = ends[i].value;
+                if (startVal && endVal) {
+                    const diff = Math.ceil((new Date(endVal) - new Date(startVal)) / (1000 * 60 * 60 * 24)) + 1;
+                    if (diff >= 0) {
+                        displays[i].innerText = `หยุด ${diff} วัน`;
+                        totalDays += diff;
+                        summary.push(`${formatDate(startVal)}-${formatDate(endVal)}`);
+                    }
+                } else {
+                    displays[i].innerText = "รอระบุวันที่";
+                }
+            });
+
+            const totalDisplay = document.getElementById('offlineDisplay');
+            totalDisplay.innerText = `เลื่อนแผนออกไปรวม +${totalDays} วัน`;
+            if (totalDays > 0) {
+                totalDisplay.classList.add('text-amber-400', 'font-bold');
+            } else {
+                totalDisplay.classList.remove('text-amber-400', 'font-bold');
+            }
+            return { total: totalDays, text: summary.join(', ') };
+        }
 
         async function fetchCounterInfo() {
             try {
@@ -173,7 +225,7 @@
             const baseDateInput = document.getElementById('baseDate').value;
             const currentEOH = parseFloat(document.getElementById('currentEOH').value);
             const avgRate = parseFloat(document.getElementById('avgEOHPerDay').value);
-            const offlineDays = updateOfflineDays();
+            const offlineInfo = updateOfflineDays();
 
             if (!baseDateInput || isNaN(currentEOH) || isNaN(avgRate) || avgRate <= 0) { 
                 alert("กรุณากรอกข้อมูลให้ครบถ้วน"); 
@@ -206,7 +258,7 @@
                     return;
                 }
 
-                let daysUntil = Math.floor((item.limit - currentEOH) / avgRate) + offlineDays;
+                let daysUntil = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total;
                 let startDate = new Date(baseDate);
                 startDate.setDate(baseDate.getDate() + daysUntil);
                 
@@ -236,9 +288,8 @@
                         nextType: nextType,
                         startDate: startStr,
                         finishDate: finishStr,
-                        offlineDays: offlineDays,
-                        offlineStart: document.getElementById('offlineStart').value,
-                        offlineEnd: document.getElementById('offlineEnd').value
+                        offlineDays: offlineInfo.total,
+                        offlineStart: offlineInfo.text
                     })
                 });
                 alert("บันทึกข้อมูลเรียบร้อย");
