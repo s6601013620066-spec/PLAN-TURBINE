@@ -178,6 +178,13 @@
             let totalDays = 0;
             let summary = [];
 
+            // ฟังก์ชันช่วยจัดรูปแบบวันที่จาก 2026-04-23 เป็น 23/04/2026
+            const formatDate = (dateStr) => {
+                if (!dateStr) return "";
+                const [y, m, d] = dateStr.split('-');
+                return `${d}/${m}/${y}`;
+            };
+
             starts.forEach((el, i) => {
                 const startVal = el.value;
                 const endVal = ends[i].value;
@@ -186,7 +193,8 @@
                     if (diff >= 0) {
                         displays[i].innerText = `หยุด ${diff} วัน`;
                         totalDays += diff;
-                        summary.push(`${startVal}_${endVal}`);
+                        // แก้ไข: ใช้ formatDate และเปลี่ยนตัวเชื่อมเป็น - ตามคำแนะนำ
+                        summary.push(`${formatDate(startVal)}-${formatDate(endVal)}`);
                     }
                 } else {
                     displays[i].innerText = "รอระบุวันที่";
@@ -200,7 +208,8 @@
             } else {
                 totalDisplay.classList.remove('text-amber-400', 'font-bold');
             }
-            return { total: totalDays, text: summary.join(',') };
+            // เพิ่มการเว้นวรรคหลังลูกน้ำเพื่อให้ใน Sheet อ่านง่ายขึ้น
+            return { total: totalDays, text: summary.join(', ') };
         }
 
         async function fetchCounterInfo() {
