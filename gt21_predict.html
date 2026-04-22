@@ -141,8 +141,8 @@
     </div>
 
     <script>
-        // อัปเดตลิงก์ Script URL ตามที่คุณให้มา
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzV7_jX4Aar4YQuhVqDIiMEfVZcaixL2YpjApfzUK1oTsXQDy9wbkZqCf58tC2AsvW2/exec';
+        // อัปเดตลิงก์ Script URL ตัวใหม่ที่คุณให้มา
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRKzJmaXj0xygFGLodHaaqdVkPmtLtzS9RcSbAVHO9z05uoryWb1v1-HkGCIQjthud/exec';
         
         document.getElementById('baseDate').valueAsDate = new Date();
 
@@ -178,7 +178,6 @@
             let totalDays = 0;
             let summary = [];
 
-            // ฟังก์ชันช่วยจัดรูปแบบวันที่จาก 2026-04-23 เป็น 23/04/2026
             const formatDate = (dateStr) => {
                 if (!dateStr) return "";
                 const [y, m, d] = dateStr.split('-');
@@ -193,7 +192,6 @@
                     if (diff >= 0) {
                         displays[i].innerText = `หยุด ${diff} วัน`;
                         totalDays += diff;
-                        // แก้ไข: ใช้ formatDate และเปลี่ยนตัวเชื่อมเป็น - ตามคำแนะนำ
                         summary.push(`${formatDate(startVal)}-${formatDate(endVal)}`);
                     }
                 } else {
@@ -208,7 +206,6 @@
             } else {
                 totalDisplay.classList.remove('text-amber-400', 'font-bold');
             }
-            // เพิ่มการเว้นวรรคหลังลูกน้ำเพื่อให้ใน Sheet อ่านง่ายขึ้น
             return { total: totalDays, text: summary.join(', ') };
         }
 
@@ -248,8 +245,6 @@
             ];
 
             const baseDate = new Date(baseDateInput);
-            let nextType = ""; let startStr = ""; let finishStr = "";
-
             schedule.forEach((item) => {
                 const dayEl = document.getElementById(`${item.id}_days`);
                 const startEl = document.getElementById(`${item.id}_start`);
@@ -270,12 +265,6 @@
                 finishDate.setDate(startDate.getDate() + item.duration);
                 const diffDays = Math.ceil((startDate.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
 
-                if (nextType === "") {
-                    nextType = item.name;
-                    startStr = startDate.toLocaleDateString('th-TH');
-                    finishStr = finishDate.toLocaleDateString('th-TH');
-                }
-
                 dayEl.innerText = `${diffDays.toLocaleString()} วัน`;
                 startEl.innerText = "เริ่ม: " + startDate.toLocaleDateString('th-TH');
                 finishEl.innerText = "เสร็จ: " + finishDate.toLocaleDateString('th-TH');
@@ -288,9 +277,6 @@
                         recordDate: baseDateInput,
                         currentEOH: currentEOH,
                         avgRate: avgRate,
-                        nextType: nextType,
-                        startDate: startStr,
-                        finishDate: finishStr,
                         offlineDays: offlineInfo.total,
                         offlineStart: offlineInfo.text
                     })
