@@ -96,7 +96,7 @@
             <div id="card_typeA1" class="glass-card p-5 border-l-4 border-emerald-500">
                 <div class="flex justify-between items-start">
                     <h3 class="text-emerald-400 font-bold text-sm uppercase">Type A1 (9k)</h3>
-                    <span id="set_A1" class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">Set: --</span>
+                    <span id="set_A1" class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">Next Set: --</span>
                 </div>
                 <div id="typeA1_days" class="text-2xl font-bold text-white my-2">-- วัน</div>
                 <div class="space-y-1">
@@ -107,7 +107,7 @@
             <div id="card_typeB" class="glass-card p-5 border-l-4 border-amber-500">
                 <div class="flex justify-between items-start">
                     <h3 class="text-amber-400 font-bold text-sm uppercase">Type B (18k)</h3>
-                    <span id="set_B" class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/30">Set: --</span>
+                    <span id="set_B" class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/30">Next Set: --</span>
                 </div>
                 <div id="typeB_days" class="text-2xl font-bold text-white my-2">-- วัน</div>
                 <div class="space-y-1">
@@ -118,7 +118,7 @@
             <div id="card_typeA2" class="glass-card p-5 border-l-4 border-emerald-500">
                 <div class="flex justify-between items-start">
                     <h3 class="text-emerald-400 font-bold text-sm uppercase">Type A2 (27k)</h3>
-                    <span id="set_A2" class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">Set: --</span>
+                    <span id="set_A2" class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">Next Set: --</span>
                 </div>
                 <div id="typeA2_days" class="text-2xl font-bold text-white my-2">-- วัน</div>
                 <div class="space-y-1">
@@ -129,7 +129,7 @@
             <div id="card_typeC" class="glass-card p-5 border-l-4 border-red-500">
                 <div class="flex justify-between items-start">
                     <h3 class="text-red-400 font-bold text-sm uppercase">Type C (36k)</h3>
-                    <span id="set_C" class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full border border-red-500/30">Set: --</span>
+                    <span id="set_C" class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full border border-red-500/30">Next Set: --</span>
                 </div>
                 <div id="typeC_days" class="text-2xl font-bold text-white my-2">-- วัน</div>
                 <div class="space-y-1">
@@ -141,7 +141,8 @@
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzjJxJCm_dWwG5-CII1ijfjxcR6DWXxP4aMMU6n9suySwMvaArRzLaiLVPYgV9yqqQv/exec';
+        // อัปเดตลิงก์ Script URL ตามที่คุณให้มา
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzV7_jX4Aar4YQuhVqDIiMEfVZcaixL2YpjApfzUK1oTsXQDy9wbkZqCf58tC2AsvW2/exec';
         
         document.getElementById('baseDate').valueAsDate = new Date();
 
@@ -282,8 +283,7 @@
                         startDate: startStr,
                         finishDate: finishStr,
                         offlineDays: offlineInfo.total,
-                        offlineStart: offlineInfo.text, // ส่ง String ที่มัดรวมกันไป (เช่น "2026-01-01_2026-01-02,2026-01-10_2026-01-12")
-                        offlineEnd: "-" // ช่องนี้ส่งขีดไปเพื่อไม่ให้กระทบโครงสร้างเดิมมาก
+                        offlineStart: offlineInfo.text
                     })
                 });
                 alert("บันทึกข้อมูลเรียบร้อย");
