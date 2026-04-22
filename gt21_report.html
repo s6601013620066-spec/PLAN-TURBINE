@@ -83,7 +83,8 @@
     </div>
 
     <script>
-        const REPORT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzV7_jX4Aar4YQuhVqDIiMEfVZcaixL2YpjApfzUK1oTsXQDy9wbkZqCf58tC2AsvW2/exec';
+        // อัปเดตลิงก์ Script URL ตัวใหม่ที่คุณให้มา
+        const REPORT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRKzJmaXj0xygFGLodHaaqdVkPmtLtzS9RcSbAVHO9z05uoryWb1v1-HkGCIQjthud/exec';
 
         document.getElementById('reportDate').valueAsDate = new Date();
 
@@ -101,7 +102,7 @@
 
         async function executeSubmit() {
             const startDate = document.getElementById('startDate').value;
-            const startTime = document.getElementById('startTime').value || '00:00'; // ถ้าไม่ระบุ ให้เป็นเที่ยงคืน
+            const startTime = document.getElementById('startTime').value || '00:00';
             const finishDate = document.getElementById('finishDate').value;
             const finishTime = document.getElementById('finishTime').value || '00:00';
 
@@ -110,11 +111,9 @@
                 return;
             }
 
-            // รวมวันที่และเวลาเพื่อส่งเข้าคอลัมน์เดิม
             const fullStart = `${startDate} ${startTime}`;
             const fullFinish = `${finishDate} ${finishTime}`;
 
-            // คำนวณระยะเวลา (Duration) โดยคิดเป็นวันและเศษของวัน
             const startObj = new Date(fullStart);
             const finishObj = new Date(fullFinish);
             const diffMs = finishObj - startObj;
@@ -125,9 +124,9 @@
                 reportDate: document.getElementById('reportDate').value,
                 type: document.getElementById('maintType').value,
                 set: document.getElementById('maintSet').value,
-                start: fullStart, // ส่งค่าที่รวมเวลาแล้ว
-                finish: fullFinish, // ส่งค่าที่รวมเวลาแล้ว
-                duration: diffDays > 0 ? parseFloat(diffDays.toFixed(2)) : 0, // ปัดเศษทศนิยม 2 ตำแหน่ง
+                start: fullStart,
+                finish: fullFinish,
+                duration: diffDays > 0 ? parseFloat(diffDays.toFixed(2)) : 0,
                 comment: document.getElementById('comment').value
             };
             
