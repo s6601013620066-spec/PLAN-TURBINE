@@ -74,8 +74,8 @@
     </div>
 
     <script>
-        // อัปเดตลิงก์ใหม่ตรงนี้
-        const REPORT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzV2auLkbvgTILRhcNp_Rx0HorrqlmVpgsVYVXqL36mDTy0A7s9IC1CB-S_3FqcN-cG/exec';
+        // อัปเดตลิงก์ Apps Script GT22 ใหม่ที่ให้มา
+        const REPORT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCFx5e0z2wzQ2ktTuPvsBKACYZzhVTOyv2kBEF4zYtXBQB9HVK7jvgnhbRJAE8taE/exec';
 
         document.getElementById('reportDate').valueAsDate = new Date();
 
@@ -86,7 +86,7 @@
                 const res = await fetch(REPORT_SCRIPT_URL);
                 const counts = await res.json();
                 document.getElementById('maintSet').value = (counts[typeKey] || 0) + 1;
-            } catch (e) { console.log(e); }
+            } catch (e) { console.log("Counter Fetch Error:", e); }
         }
 
         window.onload = autoFetchSetNumber;
@@ -112,24 +112,26 @@
             };
             
             btn.disabled = true;
-            btn.innerHTML = 'กำลังบันทึก...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
+            
             try {
-                // แก้ไข: นำ mode: 'no-cors' ออกเพื่อให้ส่ง body ข้อมูลสำเร็จ
+                // ส่งข้อมูลเข้า Apps Script
                 await fetch(REPORT_SCRIPT_URL, { 
                     method: 'POST', 
+                    mode: 'no-cors', // ใช้ no-cors เพราะ Apps Script มักติด CORS แต่ข้อมูลจะเข้าปกติ
                     body: JSON.stringify(data) 
                 });
 
                 Swal.fire({ 
                     icon: 'success', 
                     title: 'สำเร็จ!', 
-                    text: 'บันทึกเรียบร้อย' 
+                    text: 'บันทึกรายงานลงชีตเรียบร้อย' 
                 }).then(() => {
                     window.location.href = 'gt22_predict.html';
                 });
             } catch (e) { 
                 console.error('Submit Error:', e);
-                Swal.fire('Error', 'ลองใหม่อีกครั้ง หรือตรวจสอบการตั้งค่า Apps Script', 'error');
+                Swal.fire('Error', 'ไม่สามารถเชื่อมต่อ Google Sheets ได้', 'error');
                 btn.disabled = false;
                 btn.innerHTML = 'บันทึกรายงาน';
             }
