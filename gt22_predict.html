@@ -141,14 +141,15 @@
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzV2auLkbvgTILRhcNp_Rx0HorrqlmVpgsVYVXqL36mDTy0A7s9IC1CB-S_3FqcN-cG/exec';
+        // อัปเดตลิงก์ Apps Script GT22 ใหม่ที่ให้มา
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCFx5e0z2wzQ2ktTuPvsBKACYZzhVTOyv2kBEF4zYtXBQB9HVK7jvgnhbRJAE8taE/exec';
         
         document.getElementById('baseDate').valueAsDate = new Date();
 
         function addOfflineRow() {
             const container = document.getElementById('offline-container');
             const newRow = document.createElement('div');
-            newRow.className = 'grid grid-cols-1 md:grid-cols-3 gap-6 offline-row bg-slate-800/30 p-4 rounded-2xl border border-slate-700/30 relative';
+            newRow.className = 'grid grid-cols-1 md:grid-cols-3 gap-6 offline-row bg-slate-800/30 p-4 rounded-2xl border border-slate-700/30 relative mt-2';
             newRow.innerHTML = `
                 <div>
                     <label class="block text-[10px] text-slate-500 mb-1">เริ่มหยุด</label>
@@ -244,7 +245,6 @@
             ];
 
             const baseDate = new Date(baseDateInput);
-            let nextType = ""; let startStr = ""; let finishStr = "";
 
             schedule.forEach((item) => {
                 const dayEl = document.getElementById(`${item.id}_days`);
@@ -266,12 +266,6 @@
                 finishDate.setDate(startDate.getDate() + item.duration);
                 const diffDays = Math.ceil((startDate.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
 
-                if (nextType === "") {
-                    nextType = item.name;
-                    startStr = startDate.toLocaleDateString('th-TH');
-                    finishStr = finishDate.toLocaleDateString('th-TH');
-                }
-
                 dayEl.innerText = `${diffDays.toLocaleString()} วัน`;
                 startEl.innerText = "เริ่ม: " + startDate.toLocaleDateString('th-TH');
                 finishEl.innerText = "เสร็จ: " + finishDate.toLocaleDateString('th-TH');
@@ -285,14 +279,11 @@
                         recordDate: baseDateInput,
                         currentEOH: currentEOH,
                         avgRate: avgRate,
-                        nextType: nextType,
-                        startDate: startStr,
-                        finishDate: finishStr,
                         offlineDays: offlineInfo.total,
                         offlineStart: offlineInfo.text
                     })
                 });
-                alert("บันทึกข้อมูลเรียบร้อย");
+                alert("บันทึกข้อมูลและส่งพยากรณ์ลงชีตเรียบร้อย");
                 fetchCounterInfo();
             } catch (e) { alert("Error connecting to Sheets"); }
             finally { btn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i> บันทึกและพยากรณ์'; btn.disabled = false; }
