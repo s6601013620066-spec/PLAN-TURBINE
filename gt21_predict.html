@@ -224,7 +224,8 @@
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRKzJmaXj0xygFGLodHaaqdVkPmtLtzS9RcSbAVHO9z05uoryWb1v1-HkGCIQjthud/exec';
+        // อัปเดตลิงก์ใหม่ตามที่คุณส่งมา
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDw-Fuxl9SqBpiNbrWB8xydw-qWRrulPOmyvv9KdZ26vKaA7E0kanHbiBaybTRkhOU/exec';
         
         document.getElementById('baseDate').valueAsDate = new Date();
 
@@ -308,7 +309,7 @@
             const baseDateInput = document.getElementById('baseDate').value;
             const currentEOH = parseFloat(document.getElementById('currentEOH').value);
             const avgRate = parseFloat(document.getElementById('avgEOHPerDay').value);
-            const manualActualDateInput = document.getElementById('manualActualDate').value; // ค่าจากบล็อกใหม่
+            const manualActualDateInput = document.getElementById('manualActualDate').value; 
             const offlineInfo = updateOfflineDays();
 
             if (!baseDateInput || isNaN(currentEOH) || isNaN(avgRate) || avgRate <= 0) { 
@@ -317,14 +318,14 @@
             }
 
             const schedule = [
-                { id: 'typeA1', name: 'Type A1 (9k)', limit: 9000, duration: 8 },
-                { id: 'typeB', name: 'Type B (18k)', limit: 18000, duration: 9 },
-                { id: 'typeA2', name: 'Type A2 (27k)', limit: 27000, duration: 8 },
-                { id: 'typeC', name: 'Type C (36k)', limit: 36000, duration: 37 }
+                { id: 'typeA1', name: 'Type A1', limit: 9000, duration: 8 },
+                { id: 'typeB', name: 'Type B', limit: 18000, duration: 9 },
+                { id: 'typeA2', name: 'Type A2', limit: 27000, duration: 8 },
+                { id: 'typeC', name: 'Type C', limit: 36000, duration: 37 }
             ];
 
             const baseDate = new Date(baseDateInput);
-            let dayOffset = 0; // ตัวแปรเก็บค่าการเลื่อนวัน
+            let dayOffset = 0; 
             let firstPredictDate = null;
 
             // คำนวณวันซ่อมวันแรกเพื่อหา Offset
@@ -344,7 +345,7 @@
                 dayOffset = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
                 if (Math.abs(dayOffset) > 7) {
-                    alert(`⚠️ ห้ามกำหนดวันซ่อมจริงห่างจากวันพยากรณ์เกิน 7 วัน (ปัจจุบันห่าง ${Math.abs(dayOffset)} วัน)`);
+                    alert(`⚠️ ห้ามกำหนดวันซ่อมจริงห่างจากวันพยากรณ์เดิมเกิน 7 วัน (ปัจจุบันห่าง ${Math.abs(dayOffset)} วัน)`);
                     return;
                 }
             }
@@ -352,8 +353,6 @@
             const btn = document.getElementById('btnSave');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
             btn.disabled = true;
-
-            const finalResults = []; // เก็บข้อมูลเพื่อส่งบันทึก
 
             schedule.forEach((item) => {
                 const dayEl = document.getElementById(`${item.id}_days`);
@@ -369,7 +368,7 @@
 
                 let daysUntil = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total;
                 let startDate = new Date(baseDate);
-                startDate.setDate(baseDate.getDate() + daysUntil + dayOffset); // เพิ่มค่า Offset
+                startDate.setDate(baseDate.getDate() + daysUntil + dayOffset); 
                 
                 const finishDate = new Date(startDate);
                 finishDate.setDate(startDate.getDate() + item.duration);
@@ -378,16 +377,10 @@
                 dayEl.innerText = `${diffDays.toLocaleString()} วัน`;
                 startEl.innerText = "เริ่ม: " + startDate.toLocaleDateString('th-TH');
                 finishEl.innerText = "เสร็จ: " + finishDate.toLocaleDateString('th-TH');
-
-                finalResults.push({
-                    name: item.name,
-                    start: startDate.toISOString().split('T')[0],
-                    finish: finishDate.toISOString().split('T')[0]
-                });
             });
 
             try {
-                await fetch(SCRIPT_URL, {
+                const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify({
                         recordDate: baseDateInput,
@@ -395,14 +388,17 @@
                         avgRate: avgRate,
                         offlineDays: offlineInfo.total,
                         offlineStart: offlineInfo.text,
-                        dayOffset: dayOffset, // ส่งค่าส่วนต่างไปด้วย (ถ้ามี)
-                        predictions: finalResults // ส่งชุดวันที่ที่เลื่อนแล้วไปบันทึก
+                        dayOffset: dayOffset // ส่งค่าที่คำนวณได้ไปบันทึก
                     })
                 });
-                alert("บันทึกข้อมูลเรียบร้อย" + (dayOffset !== 0 ? ` (เลื่อนแผน ${dayOffset} วัน)` : ""));
+                alert("บันทึกข้อมูลเรียบร้อย" + (dayOffset !== 0 ? ` (ชิปวันที่ ${dayOffset} วัน)` : ""));
                 fetchCounterInfo();
-            } catch (e) { alert("Error connecting to Sheets"); }
-            finally { btn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i> บันทึกและพยากรณ์'; btn.disabled = false; }
+            } catch (e) { 
+                alert("Error connecting to Sheets"); 
+            } finally { 
+                btn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i> บันทึกและพยากรณ์'; 
+                btn.disabled = false; 
+            }
         }
     </script>
 </body>
