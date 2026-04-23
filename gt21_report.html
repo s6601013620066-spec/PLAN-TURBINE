@@ -83,8 +83,8 @@
     </div>
 
     <script>
-        // อัปเดตลิงก์ Script URL ตัวใหม่ที่คุณให้มา
-        const REPORT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRKzJmaXj0xygFGLodHaaqdVkPmtLtzS9RcSbAVHO9z05uoryWb1v1-HkGCIQjthud/exec';
+        // อัปเดตเป็นลิงก์ใหม่ตามที่คุณระบุ
+        const REPORT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDw-Fuxl9SqBpiNbrWB8xydw-qWRrulPOmyvv9KdZ26vKaA7E0kanHbiBaybTRkhOU/exec';
 
         document.getElementById('reportDate').valueAsDate = new Date();
 
@@ -95,7 +95,9 @@
                 const res = await fetch(REPORT_SCRIPT_URL);
                 const counts = await res.json();
                 document.getElementById('maintSet').value = (counts[typeKey] || 0) + 1;
-            } catch (e) { console.log(e); }
+            } catch (e) { 
+                console.error('Fetch Counter Error:', e);
+            }
         }
 
         window.onload = autoFetchSetNumber;
@@ -119,6 +121,11 @@
             const diffMs = finishObj - startObj;
             const diffDays = diffMs / (1000 * 60 * 60 * 24);
 
+            if (diffDays < 0) {
+                Swal.fire('ข้อผิดพลาด', 'วันที่เสร็จสิ้นต้องไม่มาก่อนวันที่เริ่ม', 'error');
+                return;
+            }
+
             const btn = document.getElementById('btnSubmit');
             const data = {
                 reportDate: document.getElementById('reportDate').value,
@@ -126,12 +133,13 @@
                 set: document.getElementById('maintSet').value,
                 start: fullStart,
                 finish: fullFinish,
-                duration: diffDays > 0 ? parseFloat(diffDays.toFixed(2)) : 0,
+                duration: parseFloat(diffDays.toFixed(2)),
                 comment: document.getElementById('comment').value
             };
             
             btn.disabled = true;
-            btn.innerHTML = 'กำลังบันทึก...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
+
             try {
                 await fetch(REPORT_SCRIPT_URL, { 
                     method: 'POST', 
@@ -141,15 +149,15 @@
                 Swal.fire({ 
                     icon: 'success', 
                     title: 'สำเร็จ!', 
-                    text: 'บันทึกเรียบร้อย' 
+                    text: 'บันทึกรายงานการซ่อมบำรุงเรียบร้อยแล้ว' 
                 }).then(() => {
                     window.location.href = 'gt21_predict.html';
                 });
             } catch (e) { 
                 console.error('Submit Error:', e);
-                Swal.fire('Error', 'ลองใหม่อีกครั้ง', 'error');
+                Swal.fire('Error', 'ไม่สามารถเชื่อมต่อกับระบบได้ กรุณาลองใหม่อีกครั้ง', 'error');
                 btn.disabled = false;
-                btn.innerHTML = 'บันทึกรายงาน';
+                btn.innerHTML = '<i class="fas fa-save mr-2"></i> บันทึกรายงาน';
             }
         }
     </script>
