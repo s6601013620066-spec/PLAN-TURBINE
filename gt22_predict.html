@@ -178,7 +178,8 @@
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8zvwpLd-yFFkhDp-yP_rm81qyzFjneRxfPfh97ERfJDs31z17LxU61X4iI3MDTy7U/exec';
+        // อัปเดตลิงก์ App Script URL ที่นี่
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxScHgroLlYU9WOLBFDSLkq6sghAYtmf5B66aVajC6OSMT8lbBhFE9q3ND_Rs7awFlF/exec';
         
         document.getElementById('baseDate').valueAsDate = new Date();
 
@@ -265,14 +266,12 @@
                 }
 
                 let startDate;
-                // ตรรกะคำนวณ: หากเป็น Type แรกที่ยังไม่ถึงกำหนด และมีการระบุ Manual Date
                 if (manualActualDate && !startDate) {
                     const predictedDays = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total;
                     const predictedDate = new Date(baseDate);
                     predictedDate.setDate(baseDate.getDate() + predictedDays);
                     
                     startDate = new Date(manualActualDate);
-                    // คำนวณส่วนต่างระหว่าง "วันจริงที่กรอก" กับ "วันที่พยากรณ์ได้" เพื่อไปบวกให้ Type ถัดๆ ไป
                     manualAdjustmentDays = Math.ceil((startDate - predictedDate) / (1000 * 60 * 60 * 24));
                 } else {
                     const daysUntil = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total + manualAdjustmentDays;
@@ -298,7 +297,7 @@
                         avgRate: avgRate,
                         offlineDays: offlineInfo.total,
                         offlineStart: offlineInfo.text,
-                        manualActualDate: manualActualDate // ส่งค่าวันจริงไปบันทึกใน Sheet ด้วย
+                        manualActualDate: manualActualDate
                     })
                 });
                 alert("บันทึกข้อมูลเรียบร้อย");
