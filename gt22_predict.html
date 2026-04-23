@@ -221,6 +221,15 @@
         
         document.getElementById('baseDate').valueAsDate = new Date();
 
+        // ฟังก์ชันช่วยจัดรูปแบบวันที่เป็น DD/MM/YYYY
+        function formatThaiDate(date) {
+            if (!(date instanceof Date) || isNaN(date)) return "-";
+            const d = String(date.getDate()).padStart(2, '0');
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const y = date.getFullYear();
+            return `${d}/${m}/${y}`;
+        }
+
         function addOfflineRow() {
             const container = document.getElementById('offline-container');
             const newRow = document.createElement('div');
@@ -253,7 +262,7 @@
             let totalDays = 0;
             let summary = [];
 
-            const formatDate = (dateStr) => {
+            const formatDateForSummary = (dateStr) => {
                 if (!dateStr) return "";
                 const [y, m, d] = dateStr.split('-');
                 return `${d}/${m}/${y}`;
@@ -267,7 +276,7 @@
                     if (diff >= 0) {
                         displays[i].innerText = `หยุด ${diff} วัน`;
                         totalDays += diff;
-                        summary.push(`${formatDate(startVal)}-${formatDate(endVal)}`);
+                        summary.push(`${formatDateForSummary(startVal)}-${formatDateForSummary(endVal)}`);
                     }
                 } else {
                     displays[i].innerText = "รอระบุวันที่";
@@ -319,7 +328,6 @@
             let dayOffset = 0; 
             let firstPredictDate = null;
 
-            // 1. คำนวณหา "วันพยากรณ์แรก" เพื่อเทียบกับวัน Manual
             for (let item of schedule) {
                 if (currentEOH < item.limit) {
                     let daysUntil = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total;
@@ -329,7 +337,6 @@
                 }
             }
 
-            // 2. ตรวจสอบ Manual Offset (Logic เหมือน GT21)
             if (manualActualDateInput && firstPredictDate) {
                 const actualDate = new Date(manualActualDateInput);
                 const diffTime = actualDate - firstPredictDate;
@@ -345,7 +352,6 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
             btn.disabled = true;
 
-            // 3. แสดงผลลัพธ์บนการ์ด
             schedule.forEach((item) => {
                 const dayEl = document.getElementById(`${item.id}_days`);
                 const startEl = document.getElementById(`${item.id}_start`);
@@ -367,13 +373,14 @@
                 const diffDays = Math.ceil((startDate.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
 
                 dayEl.innerText = `${diffDays.toLocaleString()} วัน`;
-                startEl.innerText = "เริ่ม: " + startDate.toLocaleDateString('th-TH');
-                finishEl.innerText = "เสร็จ: " + finishDate.toLocaleDateString('th-TH');
+                // ปรับการแสดงผลตรงนี้ให้เป็น DD/MM/YYYY
+                startEl.innerText = "เริ่ม: " + formatThaiDate(startDate);
+                finishEl.innerText = "เสร็จ: " + formatThaiDate(finishDate);
             });
 
-            // 4. ส่งข้อมูลไป Google Sheets
             try {
                 await fetch(SCRIPT_URL, {
+                    method: 'POST',
                     method: 'POST',
                     mode: 'no-cors',
                     body: JSON.stringify({
