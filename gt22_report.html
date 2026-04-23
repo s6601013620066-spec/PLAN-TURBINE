@@ -83,8 +83,8 @@
     </div>
 
     <script>
-        // อัปเดตลิงก์ Apps Script ของ GT22 ตัวใหม่ที่คุณส่งมา
-        const REPORT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8zvwpLd-yFFkhDp-yP_rm81qyzFjneRxfPfh97ERfJDs31z17LxU61X4iI3MDTy7U/exec';
+        // อัปเดตลิงก์ Apps Script URL ตัวใหม่ที่ส่งมา
+        const REPORT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxScHgroLlYU9WOLBFDSLkq6sghAYtmf5B66aVajC6OSMT8lbBhFE9q3ND_Rs7awFlF/exec';
 
         document.getElementById('reportDate').valueAsDate = new Date();
 
@@ -95,7 +95,7 @@
                 const res = await fetch(REPORT_SCRIPT_URL);
                 const counts = await res.json();
                 document.getElementById('maintSet').value = (counts[typeKey] || 0) + 1;
-            } catch (e) { console.log(e); }
+            } catch (e) { console.log('Fetch Set Error:', e); }
         }
 
         window.onload = autoFetchSetNumber;
@@ -132,9 +132,12 @@
             
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
+
             try {
+                // ส่งข้อมูลไปยัง Apps Script
                 await fetch(REPORT_SCRIPT_URL, { 
-                    method: 'POST', 
+                    method: 'POST',
+                    mode: 'no-cors', // สำคัญ: ป้องกันปัญหา CORS
                     body: JSON.stringify(data) 
                 });
 
@@ -147,9 +150,9 @@
                 });
             } catch (e) { 
                 console.error('Submit Error:', e);
-                Swal.fire('Error', 'ลองใหม่อีกครั้ง', 'error');
+                Swal.fire('Error', 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง', 'error');
                 btn.disabled = false;
-                btn.innerHTML = 'บันทึกรายงาน';
+                btn.innerHTML = '<i class="fas fa-save mr-2"></i> บันทึกรายงาน';
             }
         }
     </script>
