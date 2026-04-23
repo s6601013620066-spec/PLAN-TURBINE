@@ -29,9 +29,11 @@
                 <a href="https://docs.google.com/spreadsheets/d/1-CjAYpVAM6KMzn4-jWBRwuuJUMI7rnEWuLRx01eAeJY/edit?gid=0#gid=0" target="_blank" class="bg-amber-600/20 hover:bg-amber-600/40 text-amber-400 border border-amber-500/50 font-semibold py-2.5 px-6 rounded-xl transition-all flex items-center shadow-lg">
                     <i class="fas fa-table mr-2"></i> ตรวจสอบ Google Sheet
                 </a>
+
                 <button onclick="window.location.href='gt22_report.html'" class="bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/50 font-semibold py-2.5 px-6 rounded-xl transition-all flex items-center shadow-lg">
                     <i class="fas fa-clipboard-list mr-2"></i> รายงานการซ่อมบำรุง
                 </button>
+
                 <button onclick="window.location.href='index.html'" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 px-6 rounded-xl transition-all border border-slate-700 flex items-center">
                     <i class="fas fa-home mr-2"></i> หน้าหลัก (Portal)
                 </button>
@@ -59,18 +61,18 @@
                 </div>
             </div>
 
-            <div class="mb-6 p-5 rounded-2xl bg-blue-500/5 border border-blue-500/20">
-                <div class="flex items-center gap-2 mb-4 text-blue-400">
-                    <i class="fas fa-tools text-sm"></i>
-                    <label class="text-xs font-bold uppercase tracking-wider">กำหนดวันซ่อมจริงที่ต้องการ (Optional)</label>
+            <div class="mb-6 p-5 bg-blue-900/20 border border-blue-500/30 rounded-2xl">
+                <div class="flex items-center gap-3 mb-3">
+                    <i class="fas fa-tools text-blue-400"></i>
+                    <h3 class="text-sm font-bold text-blue-300 uppercase tracking-wider">กำหนดวันซ่อมจริงที่ต้องการ (Optional)</h3>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                    <div class="relative">
-                        <input type="date" id="manualActualDate" class="input-field w-full p-3 rounded-xl border-blue-500/30 text-blue-300 focus:border-blue-400">
+                <div class="flex flex-col md:flex-row items-center gap-4">
+                    <div class="w-full md:w-1/3">
+                        <input type="date" id="manualActualDate" class="input-field w-full p-2.5 rounded-xl border-blue-400/20">
                     </div>
-                    <div class="text-[11px] text-slate-400 italic bg-slate-800/40 p-3 rounded-lg border border-slate-700/50">
+                    <p class="text-[11px] text-slate-400 italic">
                         * ระบุเฉพาะเมื่อต้องการเลื่อนแผนทั้งหมด โดยยึดวันซ่อมจริงของ Type แรกเป็นหลัก (ห้ามเกิน 1 อาทิตย์จากวันพยากรณ์เดิม)
-                    </div>
+                    </p>
                 </div>
             </div>
 
@@ -81,7 +83,25 @@
                         <i class="fas fa-plus mr-1"></i> เพิ่มช่วงวันหยุด
                     </button>
                 </div>
-                <div id="offline-container" class="space-y-3"></div>
+                
+                <div id="offline-container" class="space-y-3">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 offline-row bg-slate-800/30 p-4 rounded-2xl border border-slate-700/30">
+                        <div>
+                            <label class="block text-[10px] text-slate-500 mb-1">เริ่มหยุด</label>
+                            <input type="date" class="offline-start input-field w-full p-2 rounded-lg border-red-500/20" onchange="updateOfflineDays()">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-500 mb-1">สิ้นสุด</label>
+                            <input type="date" class="offline-end input-field w-full p-2 rounded-lg border-emerald-500/20" onchange="updateOfflineDays()">
+                        </div>
+                        <div class="flex items-end">
+                            <div class="offline-item-display text-xs text-slate-400 italic bg-slate-900/50 p-2.5 rounded-lg w-full text-center border border-dashed border-slate-700">
+                                รอระบุวันที่
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="offlineDisplay" class="mt-4 text-center text-sm font-medium text-slate-400 bg-slate-800/50 py-2 rounded-xl border border-slate-700/50">
                     เครื่องหยุดทำงานรวม 0 วัน
                 </div>
@@ -93,7 +113,7 @@
             <div id="card_typeA1" class="glass-card p-5 border-l-4 border-emerald-500">
                 <div class="flex justify-between items-start">
                     <h3 class="text-emerald-400 font-bold text-sm uppercase">Type A1 (9k)</h3>
-                    <span id="set_A1" class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">Set: --</span>
+                    <span id="set_A1" class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">Next Set: --</span>
                 </div>
                 <div id="typeA1_days" class="text-2xl font-bold text-white my-2">-- วัน</div>
                 <div class="space-y-1">
@@ -104,7 +124,7 @@
             <div id="card_typeB" class="glass-card p-5 border-l-4 border-amber-500">
                 <div class="flex justify-between items-start">
                     <h3 class="text-amber-400 font-bold text-sm uppercase">Type B (18k)</h3>
-                    <span id="set_B" class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/30">Set: --</span>
+                    <span id="set_B" class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/30">Next Set: --</span>
                 </div>
                 <div id="typeB_days" class="text-2xl font-bold text-white my-2">-- วัน</div>
                 <div class="space-y-1">
@@ -115,7 +135,7 @@
             <div id="card_typeA2" class="glass-card p-5 border-l-4 border-emerald-500">
                 <div class="flex justify-between items-start">
                     <h3 class="text-emerald-400 font-bold text-sm uppercase">Type A2 (27k)</h3>
-                    <span id="set_A2" class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">Set: --</span>
+                    <span id="set_A2" class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">Next Set: --</span>
                 </div>
                 <div id="typeA2_days" class="text-2xl font-bold text-white my-2">-- วัน</div>
                 <div class="space-y-1">
@@ -126,7 +146,7 @@
             <div id="card_typeC" class="glass-card p-5 border-l-4 border-red-500">
                 <div class="flex justify-between items-start">
                     <h3 class="text-red-400 font-bold text-sm uppercase">Type C (36k)</h3>
-                    <span id="set_C" class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full border border-red-500/30">Set: --</span>
+                    <span id="set_C" class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full border border-red-500/30">Next Set: --</span>
                 </div>
                 <div id="typeC_days" class="text-2xl font-bold text-white my-2">-- วัน</div>
                 <div class="space-y-1">
@@ -136,18 +156,19 @@
             </div>
         </div>
 
-        <div class="glass-card p-6 shadow-xl border border-blue-500/20 mb-10 text-center md:text-left">
-            <div class="flex flex-col md:flex-row items-center gap-4 border-b border-slate-700/50 pb-4 mb-6">
+        <div class="glass-card p-6 shadow-xl border border-blue-500/20 mb-10">
+            <div class="flex items-start gap-4 border-b border-slate-700/50 pb-4 mb-6">
                 <div class="bg-blue-600/20 p-3 rounded-lg text-blue-400 shadow-inner">
                     <i class="fas fa-info-circle text-xl"></i>
                 </div>
                 <div>
                     <h3 class="text-lg font-bold text-blue-300 uppercase tracking-wide">หมายเหตุการพยากรณ์ (GT22)</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">A1 และ A2 คือการซ่อมบำรุงประเภท A ตัวเดียวกัน แต่แบ่งแยกเพื่อให้ดูและอ่านได้ง่ายยิ่งขึ้น</p>
+                    <p class="text-sm text-slate-400 leading-relaxed">A1 และ A2 คือการซ่อมบำรุงประเภท A ตัวเดียวกัน แต่แบ่งแยกเพื่อให้ดูและอ่านได้ง่ายยิ่งขึ้น เพื่อให้มองในรูปแบบ <span class="text-emerald-400 font-semibold px-1">Loop คือ A1 → B → A2 → C</span></p>
                 </div>
             </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                <div class="overflow-hidden rounded-xl border border-slate-700/50">
+                <div class="overflow-hidden rounded-xl border border-slate-700/50 shadow-lg">
                     <table class="w-full text-center text-sm info-table">
                         <thead>
                             <tr>
@@ -156,19 +177,36 @@
                             </tr>
                         </thead>
                         <tbody class="text-slate-300">
-                            <tr class="bg-emerald-500/5"><td class="px-4 py-2 border-r border-slate-700/50 font-semibold text-emerald-400">A1 ( 1 )</td><td class="px-4 py-2">A ( 1 )</td></tr>
-                            <tr><td class="px-4 py-2 border-r border-slate-700/50 font-semibold text-emerald-400">A2 ( 1 )</td><td class="px-4 py-2">A ( 2 )</td></tr>
-                            <tr class="bg-emerald-500/5"><td class="px-4 py-2 border-r border-slate-700/50 font-semibold text-emerald-400">A1 ( 2 )</td><td class="px-4 py-2">A ( 3 )</td></tr>
+                            <tr class="bg-emerald-500/5 hover:bg-emerald-500/10 transition-colors">
+                                <td class="px-4 py-2 border-r border-slate-700/50 font-semibold text-emerald-400">A1 ( 1 )</td>
+                                <td class="px-4 py-2">A ( 1 )</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/50 transition-colors">
+                                <td class="px-4 py-2 border-r border-slate-700/50 font-semibold text-emerald-400">A2 ( 1 )</td>
+                                <td class="px-4 py-2">A ( 2 )</td>
+                            </tr>
+                            <tr class="bg-emerald-500/5 hover:bg-emerald-500/10 transition-colors">
+                                <td class="px-4 py-2 border-r border-slate-700/50 font-semibold text-emerald-400">A1 ( 2 )</td>
+                                <td class="px-4 py-2">A ( 3 )</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/50 transition-colors">
+                                <td class="px-4 py-2 border-r border-slate-700/50 font-semibold text-emerald-400">A2 ( 2 )</td>
+                                <td class="px-4 py-2">A ( 4 )</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
+
                 <div class="flex flex-col gap-4">
-                    <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700 flex items-center justify-between">
+                    <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700 flex items-center justify-between shadow-md">
                         <span class="text-xs text-slate-500 uppercase font-bold">Standard Loop</span>
                         <div class="flex items-center gap-2 text-sm font-bold">
-                            <span class="text-emerald-400">A1</span><i class="fas fa-chevron-right text-[10px] text-slate-600"></i>
-                            <span class="text-amber-400">B</span><i class="fas fa-chevron-right text-[10px] text-slate-600"></i>
-                            <span class="text-emerald-400">A2</span><i class="fas fa-chevron-right text-[10px] text-slate-600"></i>
+                            <span class="text-emerald-400">A1</span>
+                            <i class="fas fa-chevron-right text-[10px] text-slate-600"></i>
+                            <span class="text-amber-400">B</span>
+                            <i class="fas fa-chevron-right text-[10px] text-slate-600"></i>
+                            <span class="text-emerald-400">A2</span>
+                            <i class="fas fa-chevron-right text-[10px] text-slate-600"></i>
                             <span class="text-red-400">C</span>
                         </div>
                     </div>
@@ -178,7 +216,7 @@
     </div>
 
     <script>
-        // อัปเดตลิงก์ App Script URL ที่นี่
+        // ลิงก์ของ GT22
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxScHgroLlYU9WOLBFDSLkq6sghAYtmf5B66aVajC6OSMT8lbBhFE9q3ND_Rs7awFlF/exec';
         
         document.getElementById('baseDate').valueAsDate = new Date();
@@ -188,11 +226,21 @@
             const newRow = document.createElement('div');
             newRow.className = 'grid grid-cols-1 md:grid-cols-3 gap-6 offline-row bg-slate-800/30 p-4 rounded-2xl border border-slate-700/30 relative mt-2';
             newRow.innerHTML = `
-                <div><label class="block text-[10px] text-slate-500 mb-1">เริ่มหยุด</label><input type="date" class="offline-start input-field w-full p-2 rounded-lg" onchange="updateOfflineDays()"></div>
-                <div><label class="block text-[10px] text-slate-500 mb-1">สิ้นสุด</label><input type="date" class="offline-end input-field w-full p-2 rounded-lg" onchange="updateOfflineDays()"></div>
+                <div>
+                    <label class="block text-[10px] text-slate-500 mb-1">เริ่มหยุด</label>
+                    <input type="date" class="offline-start input-field w-full p-2 rounded-lg border-red-500/20" onchange="updateOfflineDays()">
+                </div>
+                <div>
+                    <label class="block text-[10px] text-slate-500 mb-1">สิ้นสุด</label>
+                    <input type="date" class="offline-end input-field w-full p-2 rounded-lg border-emerald-500/20" onchange="updateOfflineDays()">
+                </div>
                 <div class="flex items-end gap-2">
-                    <div class="offline-item-display text-xs text-slate-400 italic bg-slate-900/50 p-2.5 rounded-lg w-full text-center border border-dashed border-slate-700">รอระบุวันที่</div>
-                    <button onclick="this.parentElement.parentElement.remove(); updateOfflineDays();" class="bg-red-500/20 text-red-400 p-2.5 rounded-lg border border-red-500/30"><i class="fas fa-trash"></i></button>
+                    <div class="offline-item-display text-xs text-slate-400 italic bg-slate-900/50 p-2.5 rounded-lg w-full text-center border border-dashed border-slate-700">
+                        รอระบุวันที่
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove(); updateOfflineDays();" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 p-2.5 rounded-lg border border-red-500/30">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
             `;
             container.appendChild(newRow);
@@ -205,55 +253,100 @@
             let totalDays = 0;
             let summary = [];
 
+            const formatDate = (dateStr) => {
+                if (!dateStr) return "";
+                const [y, m, d] = dateStr.split('-');
+                return `${d}/${m}/${y}`;
+            };
+
             starts.forEach((el, i) => {
-                const s = el.value; const e = ends[i].value;
-                if (s && e) {
-                    const diff = Math.ceil((new Date(e) - new Date(s)) / (1000 * 60 * 60 * 24)) + 1;
+                const startVal = el.value;
+                const endVal = ends[i].value;
+                if (startVal && endVal) {
+                    const diff = Math.ceil((new Date(endVal) - new Date(startVal)) / (1000 * 60 * 60 * 24)) + 1;
                     if (diff >= 0) {
                         displays[i].innerText = `หยุด ${diff} วัน`;
                         totalDays += diff;
-                        summary.push(`${s}_to_${e}`);
+                        summary.push(`${formatDate(startVal)}-${formatDate(endVal)}`);
                     }
+                } else {
+                    displays[i].innerText = "รอระบุวันที่";
                 }
             });
-            document.getElementById('offlineDisplay').innerText = `เลื่อนแผนออกไปรวม +${totalDays} วัน`;
+
+            const totalDisplay = document.getElementById('offlineDisplay');
+            totalDisplay.innerText = `เลื่อนแผนออกไปรวม +${totalDays} วัน`;
+            if (totalDays > 0) {
+                totalDisplay.classList.add('text-amber-400', 'font-bold');
+            } else {
+                totalDisplay.classList.remove('text-amber-400', 'font-bold');
+            }
             return { total: totalDays, text: summary.join(', ') };
         }
 
         async function fetchCounterInfo() {
             try {
-                const res = await fetch(SCRIPT_URL);
-                const data = await res.json();
+                const response = await fetch(SCRIPT_URL);
+                const data = await response.json();
                 ['A1', 'B', 'A2', 'C'].forEach(t => {
                     if(data[t] !== undefined) document.getElementById(`set_${t}`).innerText = `Next Set: ${data[t] + 1}`;
                 });
-            } catch (e) { console.log("Fetch failed"); }
+            } catch (e) { console.log("Counter loading failed"); }
         }
+
+        window.onload = () => { fetchCounterInfo(); };
 
         async function saveAndCalculate() {
             const baseDateInput = document.getElementById('baseDate').value;
             const currentEOH = parseFloat(document.getElementById('currentEOH').value);
             const avgRate = parseFloat(document.getElementById('avgEOHPerDay').value);
-            const manualActualDate = document.getElementById('manualActualDate').value;
+            const manualActualDateInput = document.getElementById('manualActualDate').value; 
             const offlineInfo = updateOfflineDays();
 
-            if (!baseDateInput || isNaN(currentEOH) || isNaN(avgRate)) { alert("กรุณากรอกข้อมูลหลักให้ครบ"); return; }
+            if (!baseDateInput || isNaN(currentEOH) || isNaN(avgRate) || avgRate <= 0) { 
+                alert("กรุณากรอกข้อมูลให้ครบถ้วน"); 
+                return; 
+            }
+
+            const schedule = [
+                { id: 'typeA1', name: 'Type A1', limit: 9000, duration: 8 },
+                { id: 'typeB', name: 'Type B', limit: 18000, duration: 9 },
+                { id: 'typeA2', name: 'Type A2', limit: 27000, duration: 8 },
+                { id: 'typeC', name: 'Type C', limit: 36000, duration: 37 }
+            ];
+
+            const baseDate = new Date(baseDateInput);
+            let dayOffset = 0; 
+            let firstPredictDate = null;
+
+            // 1. คำนวณหา "วันพยากรณ์แรก" เพื่อเทียบกับวัน Manual
+            for (let item of schedule) {
+                if (currentEOH < item.limit) {
+                    let daysUntil = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total;
+                    firstPredictDate = new Date(baseDate);
+                    firstPredictDate.setDate(baseDate.getDate() + daysUntil);
+                    break;
+                }
+            }
+
+            // 2. ตรวจสอบ Manual Offset (Logic เหมือน GT21)
+            if (manualActualDateInput && firstPredictDate) {
+                const actualDate = new Date(manualActualDateInput);
+                const diffTime = actualDate - firstPredictDate;
+                dayOffset = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+                if (Math.abs(dayOffset) > 7) {
+                    alert(`⚠️ ห้ามกำหนดวันซ่อมจริงห่างจากวันพยากรณ์เดิมเกิน 7 วัน (ปัจจุบันห่าง ${Math.abs(dayOffset)} วัน)`);
+                    return;
+                }
+            }
 
             const btn = document.getElementById('btnSave');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
             btn.disabled = true;
 
-            const baseDate = new Date(baseDateInput);
-            const configs = [
-                { id: 'typeA1', limit: 9000, duration: 8, eohStep: 9000 },
-                { id: 'typeB', limit: 18000, duration: 9, eohStep: 18000 },
-                { id: 'typeA2', limit: 27000, duration: 8, eohStep: 27000 },
-                { id: 'typeC', limit: 36000, duration: 37, eohStep: 36000 }
-            ];
-
-            let manualAdjustmentDays = 0;
-
-            configs.forEach((item, index) => {
+            // 3. แสดงผลลัพธ์บนการ์ด
+            schedule.forEach((item) => {
                 const dayEl = document.getElementById(`${item.id}_days`);
                 const startEl = document.getElementById(`${item.id}_start`);
                 const finishEl = document.getElementById(`${item.id}_finish`);
@@ -265,48 +358,42 @@
                     return;
                 }
 
-                let startDate;
-                if (manualActualDate && !startDate) {
-                    const predictedDays = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total;
-                    const predictedDate = new Date(baseDate);
-                    predictedDate.setDate(baseDate.getDate() + predictedDays);
-                    
-                    startDate = new Date(manualActualDate);
-                    manualAdjustmentDays = Math.ceil((startDate - predictedDate) / (1000 * 60 * 60 * 24));
-                } else {
-                    const daysUntil = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total + manualAdjustmentDays;
-                    startDate = new Date(baseDate);
-                    startDate.setDate(baseDate.getDate() + daysUntil);
-                }
-
+                let daysUntil = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total;
+                let startDate = new Date(baseDate);
+                startDate.setDate(baseDate.getDate() + daysUntil + dayOffset); 
+                
                 const finishDate = new Date(startDate);
                 finishDate.setDate(startDate.getDate() + item.duration);
-                const diffDays = Math.ceil((startDate - baseDate) / (86400000));
+                const diffDays = Math.ceil((startDate.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
 
                 dayEl.innerText = `${diffDays.toLocaleString()} วัน`;
-                startEl.innerText = `เริ่ม: ${startDate.toLocaleDateString('th-TH')}`;
-                finishEl.innerText = `เสร็จ: ${finishDate.toLocaleDateString('th-TH')}`;
+                startEl.innerText = "เริ่ม: " + startDate.toLocaleDateString('th-TH');
+                finishEl.innerText = "เสร็จ: " + finishDate.toLocaleDateString('th-TH');
             });
 
+            // 4. ส่งข้อมูลไป Google Sheets
             try {
                 await fetch(SCRIPT_URL, {
-                    method: 'POST', mode: 'no-cors',
+                    method: 'POST',
+                    mode: 'no-cors',
                     body: JSON.stringify({
                         recordDate: baseDateInput,
                         currentEOH: currentEOH,
                         avgRate: avgRate,
                         offlineDays: offlineInfo.total,
                         offlineStart: offlineInfo.text,
-                        manualActualDate: manualActualDate
+                        dayOffset: dayOffset
                     })
                 });
-                alert("บันทึกข้อมูลเรียบร้อย");
+                alert("บันทึกข้อมูล GT22 เรียบร้อย" + (dayOffset !== 0 ? ` (เลื่อนแผน ${dayOffset} วัน)` : ""));
                 fetchCounterInfo();
-            } catch (e) { alert("Error"); }
-            finally { btn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i> บันทึกและพยากรณ์'; btn.disabled = false; }
+            } catch (e) { 
+                alert("Error connecting to Sheets"); 
+            } finally { 
+                btn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i> บันทึกและพยากรณ์'; 
+                btn.disabled = false; 
+            }
         }
-
-        window.onload = () => { fetchCounterInfo(); addOfflineRow(); };
     </script>
 </body>
 </html>
