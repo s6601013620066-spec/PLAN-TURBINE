@@ -8,13 +8,16 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;600;700&display=swap');
-        body { background-color: #0f172a; font-family: 'Chakra Petch', sans-serif; color: #e2e8f0; }
+        body { background-color: #0f172a; font-family: 'Chakra Petch', sans-serif; color: #e2e8f0; min-height: 100vh; }
         .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border-radius: 1.25rem; border: 1px solid rgba(255, 255, 255, 0.1); }
         .input-field { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: white; transition: all 0.3s; text-align: center; }
         .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); outline: none; }
-        /* สไตล์เพิ่มเติมสำหรับตารางคำอธิบาย */
         .info-table th { background: rgba(15, 23, 42, 0.9); color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; }
         .info-table td { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        
+        /* Animation สำหรับการโหลด */
+        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .loading-shimmer { animation: pulse-soft 2s infinite; }
     </style>
 </head>
 <body class="p-4 md:p-10">
@@ -22,8 +25,11 @@
     <div class="max-w-6xl mx-auto">
         <header class="mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
             <div class="text-center md:text-left">
-                <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent uppercase">GT22 MAINTENANCE DATABASE</h1>
-                <p class="text-slate-400">ระบบบันทึกและพยากรณ์แผนซ่อมบำรุงเครื่อง GT22</p>
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent uppercase tracking-wider">GT22 MAINTENANCE DATABASE</h1>
+                <p class="text-slate-400 flex items-center justify-center md:justify-start mt-1">
+                    <span class="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
+                    ระบบบันทึกและพยากรณ์แผนซ่อมบำรุงเครื่อง GT22
+                </p>
             </div>
             
             <div class="flex flex-wrap justify-center gap-3">
@@ -36,7 +42,7 @@
                 </button>
 
                 <button onclick="window.location.href='index.html'" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 px-6 rounded-xl transition-all border border-slate-700 flex items-center">
-                    <i class="fas fa-home mr-2"></i> หน้าหลัก (Portal)
+                    <i class="fas fa-home mr-2"></i> หน้าหลัก
                 </button>
             </div>
         </header>
@@ -56,7 +62,7 @@
                     <input type="number" id="avgEOHPerDay" value="24" class="input-field w-full p-3 rounded-xl">
                 </div>
                 <div class="flex items-end">
-                    <button onclick="saveAndCalculate()" id="btnSave" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg">
+                    <button onclick="saveAndCalculate()" id="btnSave" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg flex justify-center items-center">
                         <i class="fas fa-sync-alt mr-2"></i> บันทึกและพยากรณ์
                     </button>
                 </div>
@@ -94,9 +100,11 @@
             </div>
         </div>
 
-        <h2 class="text-lg font-semibold mb-4 text-blue-400"><i class="fas fa-calendar-alt mr-2"></i>พยากรณ์รอบปัจจุบัน (Next Maintenance)</h2>
+        <h2 class="text-lg font-semibold mb-4 text-blue-400 flex items-center">
+            <i class="fas fa-calendar-alt mr-2"></i> พยากรณ์รอบปัจจุบัน (Next Maintenance)
+        </h2>
         <div id="results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-            <div id="card_typeA1" class="glass-card p-5 border-l-4 border-emerald-500">
+            <div id="card_typeA1" class="glass-card p-5 border-l-4 border-emerald-500 hover:translate-y-[-4px] transition-transform">
                 <div class="flex justify-between items-start">
                     <h3 class="text-emerald-400 font-bold text-sm uppercase">Type A1 (9k)</h3>
                     <span id="set_A1" class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">Set: --</span>
@@ -107,7 +115,7 @@
                     <div id="typeA1_finish" class="text-[11px] text-emerald-300">เสร็จ: -</div>
                 </div>
             </div>
-            <div id="card_typeB" class="glass-card p-5 border-l-4 border-amber-500">
+            <div id="card_typeB" class="glass-card p-5 border-l-4 border-amber-500 hover:translate-y-[-4px] transition-transform">
                 <div class="flex justify-between items-start">
                     <h3 class="text-amber-400 font-bold text-sm uppercase">Type B (18k)</h3>
                     <span id="set_B" class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/30">Set: --</span>
@@ -118,7 +126,7 @@
                     <div id="typeB_finish" class="text-[11px] text-amber-300">เสร็จ: -</div>
                 </div>
             </div>
-            <div id="card_typeA2" class="glass-card p-5 border-l-4 border-emerald-500">
+            <div id="card_typeA2" class="glass-card p-5 border-l-4 border-emerald-500 hover:translate-y-[-4px] transition-transform">
                 <div class="flex justify-between items-start">
                     <h3 class="text-emerald-400 font-bold text-sm uppercase">Type A2 (27k)</h3>
                     <span id="set_A2" class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">Set: --</span>
@@ -129,7 +137,7 @@
                     <div id="typeA2_finish" class="text-[11px] text-emerald-300">เสร็จ: -</div>
                 </div>
             </div>
-            <div id="card_typeC" class="glass-card p-5 border-l-4 border-red-500">
+            <div id="card_typeC" class="glass-card p-5 border-l-4 border-red-500 hover:translate-y-[-4px] transition-transform">
                 <div class="flex justify-between items-start">
                     <h3 class="text-red-400 font-bold text-sm uppercase">Type C (36k)</h3>
                     <span id="set_C" class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full border border-red-500/30">Set: --</span>
@@ -211,9 +219,10 @@
     </div>
 
     <script>
-        // ลิงก์ Apps Script GT22 ที่คุณระบุมาใหม่
+        // URL จาก Apps Script
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8zvwpLd-yFFkhDp-yP_rm81qyzFjneRxfPfh97ERfJDs31z17LxU61X4iI3MDTy7U/exec';
         
+        // Set วันที่ปัจจุบันเมื่อโหลดหน้าเว็บ
         document.getElementById('baseDate').valueAsDate = new Date();
 
         function addOfflineRow() {
@@ -323,9 +332,12 @@
 
                 if (currentEOH >= item.limit) {
                     dayEl.innerText = "OVERDUE";
+                    dayEl.className = "text-2xl font-bold text-red-500 my-2";
                     startEl.innerText = "ผ่านมาแล้ว";
                     finishEl.innerText = "-";
                     return;
+                } else {
+                    dayEl.className = "text-2xl font-bold text-white my-2";
                 }
 
                 let daysUntil = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total;
@@ -342,9 +354,11 @@
             });
 
             try {
+                // ส่งข้อมูลไปยัง Google Sheets
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
+                    cache: 'no-cache',
                     body: JSON.stringify({
                         recordDate: baseDateInput,
                         currentEOH: currentEOH,
@@ -353,10 +367,15 @@
                         offlineStart: offlineInfo.text
                     })
                 });
+                
                 alert("บันทึกข้อมูลและส่งพยากรณ์ลงชีตเรียบร้อย");
                 fetchCounterInfo();
-            } catch (e) { alert("Error connecting to Sheets"); }
-            finally { btn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i> บันทึกและพยากรณ์'; btn.disabled = false; }
+            } catch (e) { 
+                alert("Error connecting to Sheets"); 
+            } finally { 
+                btn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i> บันทึกและพยากรณ์'; 
+                btn.disabled = false; 
+            }
         }
     </script>
 </body>
