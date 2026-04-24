@@ -112,7 +112,7 @@
                 </div>
                 
                 <div id="offline-container" class="space-y-3">
-                    </div>
+                </div>
 
                 <div id="offlineDisplay" class="mt-4 text-center text-sm font-medium text-slate-400 bg-slate-800/50 py-2 rounded-xl border border-slate-700/50">
                     เครื่องหยุดทำงานรวม 0 วัน
@@ -254,7 +254,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymvIvMNgnMw40n8fmylr7HN1NdDIwk33mg6iEAwJ22ckxzpD1vgBwszITQMDHN9dBL/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxrY2ruSuBOR2sclAwFn-Weoh6YljbWhJK8wJJa3LrLimCJhICw8A6Tk3LBXUtzQog/exec';
         
         // Initial Date
         document.getElementById('baseDate').valueAsDate = new Date();
@@ -410,6 +410,7 @@
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
                 btn.disabled = true;
                 try {
+                    // แก้ไข: ส่งค่าวันซ่อมที่ปรับปรุงแล้ว (adj) ไปที่ App Script ด้วย
                     await fetch(SCRIPT_URL, {
                         method: 'POST',
                         body: JSON.stringify({
@@ -419,7 +420,11 @@
                             offlineDays: offlineInfo.total,
                             offlineStart: offlineInfo.text,
                             dayOffset: dayOffset,
-                            extraDays: { A1: extraA1, B: extraB, A2: extraA2, C: extraC }
+                            // ส่งข้อมูลระยะเวลาซ่อมที่คำนวณจาก (มาตรฐาน + extra)
+                            adjA1: schedule[0].duration,
+                            adjB:  schedule[1].duration,
+                            adjA2: schedule[2].duration,
+                            adjC:  schedule[3].duration
                         })
                     });
                     alert("บันทึกข้อมูลเรียบร้อย!");
