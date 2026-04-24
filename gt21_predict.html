@@ -159,7 +159,7 @@
             <div class="flex items-center gap-3 mb-4">
                 <i class="fas fa-clock text-blue-400"></i>
                 <h3 class="text-sm font-bold text-blue-300 uppercase tracking-wider">ปรับปรุงจำนวนวันซ่อม (Maintenance Duration)</h3>
-                <span class="text-[10px] text-slate-500 italic">* ระบุจำนวนวันที่ต้องการบวกเพิ่มจากค่ามาตรฐาน (A1:8, B:9, A2:8, C:37)</span>
+                <span class="text-[10px] text-slate-500 italic">* ระบุจำนวนวันที่ต้องการบวกเพิ่มจากค่ามาตรฐาน</span>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
@@ -250,7 +250,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDw-Fuxl9SqBpiNbrWB8xydw-qWRrulPOmyvv9KdZ26vKaA7E0kanHbiBaybTRkhOU/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzAlUWeXmf7td78850S4M7KzY5KhcI6tkbEO6UlLq6SZK5x7DeAVLjYM_mJ--BoLzJY/exec';
         
         document.getElementById('baseDate').valueAsDate = new Date();
 
@@ -338,12 +338,10 @@
             const offlineInfo = updateOfflineDays();
 
             if (!baseDateInput || isNaN(currentEOH) || isNaN(avgRate) || avgRate <= 0) { 
-                // ถ้าเป็นการเปลี่ยนค่าใน extra days ให้คำนวณเงียบๆ แต่ถ้ากดปุ่มบันทึกค่อย Alert
                 if (event && event.type === 'click') alert("กรุณากรอกข้อมูลให้ครบถ้วน"); 
                 return; 
             }
 
-            // ดึงค่า Extra Days จาก Input ใหม่
             const extraA1 = parseInt(document.getElementById('extra_typeA1').value) || 0;
             const extraB = parseInt(document.getElementById('extra_typeB').value) || 0;
             const extraA2 = parseInt(document.getElementById('extra_typeA2').value) || 0;
@@ -423,7 +421,13 @@
                             avgRate: avgRate,
                             offlineDays: offlineInfo.total,
                             offlineStart: offlineInfo.text,
-                            dayOffset: dayOffset
+                            dayOffset: dayOffset,
+                            extraDays: {
+                                A1: extraA1,
+                                B: extraB,
+                                A2: extraA2,
+                                C: extraC
+                            }
                         })
                     });
                     alert("บันทึกข้อมูลเรียบร้อย" + (dayOffset < 0 ? ` (ซ่อมก่อนแผน ${Math.abs(dayOffset)} วัน)` : (dayOffset > 0 ? ` (ชิปวันที่ ${dayOffset} วัน)` : "")));
