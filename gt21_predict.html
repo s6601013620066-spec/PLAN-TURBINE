@@ -41,6 +41,24 @@
         .info-table td { 
             border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
         }
+        .active-card {
+            border: 2px solid #3b82f6 !important;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
+        }
+        .timeline-line {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+        .timeline-progress {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+            transition: width 0.5s ease-in-out;
+        }
     </style>
 </head>
 <body class="p-4 md:p-10">
@@ -95,7 +113,7 @@
                 </div>
                 <div class="flex flex-col md:flex-row items-center gap-4">
                     <div class="w-full md:w-1/3">
-                        <input type="date" id="manualActualDate" class="input-field w-full p-2.5 rounded-xl border-blue-400/20">
+                        <input type="date" id="manualActualDate" class="input-field w-full p-2.5 rounded-xl border-blue-400/20" onchange="saveAndCalculate()">
                     </div>
                     <p class="text-[11px] text-slate-400 italic">
                         * ระบุเฉพาะเมื่อต้องการเลื่อนแผนทั้งหมด โดยยึดวันซ่อมจริงของ Type แรกเป็นหลัก (ห้ามเลทเกิน 1 อาทิตย์จากวันพยากรณ์เดิม)
@@ -111,8 +129,7 @@
                     </button>
                 </div>
                 
-                <div id="offline-container" class="space-y-3">
-                </div>
+                <div id="offline-container" class="space-y-3"></div>
 
                 <div id="offlineDisplay" class="mt-4 text-center text-sm font-medium text-slate-400 bg-slate-800/50 py-2 rounded-xl border border-slate-700/50">
                     เครื่องหยุดทำงานรวม 0 วัน
@@ -120,9 +137,19 @@
             </div>
         </div>
 
-        <h2 class="text-lg font-semibold mb-4 text-blue-400"><i class="fas fa-calendar-alt mr-2"></i>พยากรณ์รอบปัจจุบัน (Next Maintenance)</h2>
+        <div class="flex justify-between items-end mb-4">
+            <h2 class="text-lg font-semibold text-blue-400"><i class="fas fa-calendar-alt mr-2"></i>พยากรณ์รอบปัจจุบัน (Next Maintenance)</h2>
+            <div id="overall-progress-text" class="text-xs text-slate-500 font-medium">Progress to 36k: 0%</div>
+        </div>
+
+        <div class="glass-card p-2 mb-6 px-4">
+            <div class="timeline-line">
+                <div id="timeline-bar" class="timeline-progress" style="width: 0%"></div>
+            </div>
+        </div>
+
         <div id="results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div id="card_typeA1" class="glass-card p-5 border-l-4 border-emerald-500">
+            <div id="card_typeA1" class="glass-card p-5 border-l-4 border-emerald-500 transition-all duration-300">
                 <div class="flex justify-between items-start">
                     <h3 class="text-emerald-400 font-bold text-sm uppercase">Type A1 (9k)</h3>
                     <span id="set_A1" class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">Next Set: --</span>
@@ -133,7 +160,8 @@
                     <div id="typeA1_finish" class="text-[11px] text-emerald-300">เสร็จ: -</div>
                 </div>
             </div>
-            <div id="card_typeB" class="glass-card p-5 border-l-4 border-amber-500">
+
+            <div id="card_typeB" class="glass-card p-5 border-l-4 border-amber-500 transition-all duration-300">
                 <div class="flex justify-between items-start">
                     <h3 class="text-amber-400 font-bold text-sm uppercase">Type B (18k)</h3>
                     <span id="set_B" class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/30">Next Set: --</span>
@@ -144,7 +172,8 @@
                     <div id="typeB_finish" class="text-[11px] text-amber-300">เสร็จ: -</div>
                 </div>
             </div>
-            <div id="card_typeA2" class="glass-card p-5 border-l-4 border-emerald-500">
+
+            <div id="card_typeA2" class="glass-card p-5 border-l-4 border-emerald-500 transition-all duration-300">
                 <div class="flex justify-between items-start">
                     <h3 class="text-emerald-400 font-bold text-sm uppercase">Type A2 (27k)</h3>
                     <span id="set_A2" class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">Next Set: --</span>
@@ -155,7 +184,8 @@
                     <div id="typeA2_finish" class="text-[11px] text-emerald-300">เสร็จ: -</div>
                 </div>
             </div>
-            <div id="card_typeC" class="glass-card p-5 border-l-4 border-red-500">
+
+            <div id="card_typeC" class="glass-card p-5 border-l-4 border-red-500 transition-all duration-300">
                 <div class="flex justify-between items-start">
                     <h3 class="text-red-400 font-bold text-sm uppercase">Type C (36k)</h3>
                     <span id="set_C" class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full border border-red-500/30">Next Set: --</span>
@@ -265,17 +295,17 @@
             newRow.innerHTML = `
                 <div>
                     <label class="block text-[10px] text-slate-500 mb-1">เริ่มหยุด</label>
-                    <input type="date" class="offline-start input-field w-full p-2 rounded-lg border-red-500/20" onchange="updateOfflineDays()">
+                    <input type="date" class="offline-start input-field w-full p-2 rounded-lg border-red-500/20" onchange="updateOfflineDays(); saveAndCalculate();">
                 </div>
                 <div>
                     <label class="block text-[10px] text-slate-500 mb-1">สิ้นสุด</label>
-                    <input type="date" class="offline-end input-field w-full p-2 rounded-lg border-emerald-500/20" onchange="updateOfflineDays()">
+                    <input type="date" class="offline-end input-field w-full p-2 rounded-lg border-emerald-500/20" onchange="updateOfflineDays(); saveAndCalculate();">
                 </div>
                 <div class="flex items-end gap-2">
                     <div class="offline-item-display text-xs text-slate-400 italic bg-slate-900/50 p-2.5 rounded-lg w-full text-center border border-dashed border-slate-700">
                         รอระบุวันที่
                     </div>
-                    <button onclick="this.parentElement.parentElement.remove(); updateOfflineDays();" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 p-2.5 rounded-lg border border-red-500/30">
+                    <button onclick="this.parentElement.parentElement.remove(); updateOfflineDays(); saveAndCalculate();" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 p-2.5 rounded-lg border border-red-500/30">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -337,7 +367,6 @@
             const offlineInfo = updateOfflineDays();
 
             if (!baseDateInput || isNaN(currentEOH) || isNaN(avgRate) || avgRate <= 0) { 
-                if (window.event && window.event.type === 'click') alert("กรุณากรอกข้อมูลให้ครบถ้วน"); 
                 return; 
             }
 
@@ -355,18 +384,21 @@
 
             const baseDate = new Date(baseDateInput);
             let dayOffset = 0; 
-            
-            // ค้นหารายการแรกที่ต้องซ่อมเพื่อคำนวณ Manual Offset
             let firstPredictDate = null;
+            let targetCardId = null;
+
+            // Find first upcoming maintenance
             for (let item of schedule) {
                 if (currentEOH < item.limit) {
                     let daysUntil = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total;
                     firstPredictDate = new Date(baseDate);
                     firstPredictDate.setDate(baseDate.getDate() + daysUntil);
+                    targetCardId = `card_${item.id}`;
                     break;
                 }
             }
 
+            // Manual Offset Calculation
             if (manualActualDateInput && firstPredictDate) {
                 const actualDate = new Date(manualActualDateInput);
                 dayOffset = Math.round((actualDate - firstPredictDate) / (1000 * 60 * 60 * 24));
@@ -376,34 +408,40 @@
                 }
             }
 
-            // --- ส่วนที่แก้ไข: การคำนวณแบบลูกโซ่ ---
-            let lastFinishDate = new Date(baseDate);
-            let lastLimit = currentEOH;
+            // Calculate Chain Maintenance
             let maintenanceAccumulatedDays = 0;
+            let foundNext = false;
 
             schedule.forEach((item) => {
+                const cardEl = document.getElementById(`card_${item.id}`);
                 const dayEl = document.getElementById(`${item.id}_days`);
                 const startEl = document.getElementById(`${item.id}_start`);
                 const finishEl = document.getElementById(`${item.id}_finish`);
+
+                // Reset styles
+                cardEl.classList.remove('active-card');
+                cardEl.style.opacity = "1";
 
                 if (currentEOH >= item.limit) {
                     dayEl.innerText = "OVERDUE";
                     startEl.innerText = "ผ่านมาแล้ว";
                     finishEl.innerText = "-";
-                    lastLimit = item.limit; 
+                    cardEl.style.opacity = "0.5";
                 } else {
-                    // คำนวณวันเริ่ม: เริ่มจากวันที่ปัจจุบัน + (EOH ที่เหลือ / avgRate) + วันหยุด + Offset + วันซ่อมของรายการก่อนหน้า
+                    // Highlight the very next maintenance
+                    if (!foundNext) {
+                        cardEl.classList.add('active-card');
+                        foundNext = true;
+                    }
+
                     let daysFromLastToNow = Math.floor((item.limit - currentEOH) / avgRate);
                     let startDate = new Date(baseDate);
-                    
-                    // สูตร: วันที่เริ่ม = วันบันทึก + (EOH ที่ต้องรัน) + วันหยุด + Offset + จำนวนวันที่เคยใช้ซ่อมมาแล้วก่อนหน้านี้
                     let totalWaitDays = daysFromLastToNow + offlineInfo.total + dayOffset + maintenanceAccumulatedDays;
                     startDate.setDate(baseDate.getDate() + totalWaitDays);
 
                     const finishDate = new Date(startDate);
                     finishDate.setDate(startDate.getDate() + item.duration);
 
-                    // อัปเดตตัวแปรสะสม: บวกจำนวนวันที่ใช้ซ่อมใน Type นี้เข้าไปเพื่อให้ Type ถัดไปขยับออกไป
                     maintenanceAccumulatedDays += item.duration;
 
                     const diffDays = Math.ceil((startDate - new Date()) / (1000 * 60 * 60 * 24));
@@ -413,10 +451,15 @@
                 }
             });
 
-            const isClick = window.event && window.event.type === 'click';
-            const btn = document.getElementById('btnSave');
+            // Update Progress Bar (Max 36000 EOH)
+            const progressPercent = Math.min(100, (currentEOH / 36000) * 100).toFixed(1);
+            document.getElementById('timeline-bar').style.width = `${progressPercent}%`;
+            document.getElementById('overall-progress-text').innerText = `Progress to 36k: ${progressPercent}%`;
 
+            // Database Save Logic (Only on click)
+            const isClick = window.event && window.event.type === 'click' && window.event.target.id === 'btnSave';
             if (isClick) {
+                const btn = document.getElementById('btnSave');
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
                 btn.disabled = true;
                 try {
@@ -445,6 +488,11 @@
                 }
             }
         }
+
+        // Auto calculate when EOH or Rate changes
+        document.getElementById('currentEOH').addEventListener('input', saveAndCalculate);
+        document.getElementById('avgEOHPerDay').addEventListener('input', saveAndCalculate);
+        document.getElementById('baseDate').addEventListener('change', saveAndCalculate);
 
         window.onload = fetchCounterInfo;
     </script>
