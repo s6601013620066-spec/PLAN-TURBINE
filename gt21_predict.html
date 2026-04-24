@@ -8,12 +8,39 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;600;700&display=swap');
-        body { background-color: #0f172a; font-family: 'Chakra Petch', sans-serif; color: #e2e8f0; }
-        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border-radius: 1.25rem; border: 1px solid rgba(255, 255, 255, 0.1); }
-        .input-field { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: white; transition: all 0.3s; text-align: center; }
-        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); outline: none; }
-        .info-table th { background: rgba(15, 23, 42, 0.9); color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; }
-        .info-table td { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        body { 
+            background-color: #0f172a; 
+            font-family: 'Chakra Petch', sans-serif; 
+            color: #e2e8f0; 
+        }
+        .glass-card { 
+            background: rgba(30, 41, 59, 0.7); 
+            backdrop-filter: blur(12px); 
+            border-radius: 1.25rem; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+        }
+        .input-field { 
+            background: rgba(15, 23, 42, 0.8); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            color: white; 
+            transition: all 0.3s; 
+            text-align: center; 
+        }
+        .input-field:focus { 
+            border-color: #3b82f6; 
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); 
+            outline: none; 
+        }
+        .info-table th { 
+            background: rgba(15, 23, 42, 0.9); 
+            color: #94a3b8; 
+            font-size: 0.7rem; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+        }
+        .info-table td { 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+        }
     </style>
 </head>
 <body class="p-4 md:p-10">
@@ -75,6 +102,7 @@
                     </p>
                 </div>
             </div>
+
             <div class="pt-6 border-t border-slate-700/50">
                 <div class="flex justify-between items-center mb-4">
                     <label class="block text-xs font-semibold text-slate-500 uppercase">ช่วงเวลาที่เครื่องหยุดทำงาน (Offline Periods)</label>
@@ -84,22 +112,7 @@
                 </div>
                 
                 <div id="offline-container" class="space-y-3">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 offline-row bg-slate-800/30 p-4 rounded-2xl border border-slate-700/30">
-                        <div>
-                            <label class="block text-[10px] text-slate-500 mb-1">เริ่มหยุด</label>
-                            <input type="date" class="offline-start input-field w-full p-2 rounded-lg border-red-500/20" onchange="updateOfflineDays()">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] text-slate-500 mb-1">สิ้นสุด</label>
-                            <input type="date" class="offline-end input-field w-full p-2 rounded-lg border-emerald-500/20" onchange="updateOfflineDays()">
-                        </div>
-                        <div class="flex items-end">
-                            <div class="offline-item-display text-xs text-slate-400 italic bg-slate-900/50 p-2.5 rounded-lg w-full text-center border border-dashed border-slate-700">
-                                รอระบุวันที่
-                            </div>
-                        </div>
                     </div>
-                </div>
 
                 <div id="offlineDisplay" class="mt-4 text-center text-sm font-medium text-slate-400 bg-slate-800/50 py-2 rounded-xl border border-slate-700/50">
                     เครื่องหยุดทำงานรวม 0 วัน
@@ -218,10 +231,6 @@
                                 <td class="px-4 py-2 border-r border-slate-700/50 font-semibold text-emerald-400">A2 ( 2 )</td>
                                 <td class="px-4 py-2">A ( 4 )</td>
                             </tr>
-                            <tr class="bg-emerald-500/5 hover:bg-emerald-500/10 transition-colors">
-                                <td class="px-4 py-2 border-r border-slate-700/50 font-semibold text-emerald-400">A1 ( 3 )</td>
-                                <td class="px-4 py-2">A ( 5 )</td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -239,19 +248,15 @@
                             <span class="text-red-400">C</span>
                         </div>
                     </div>
-                    <div class="p-4 bg-blue-600/5 rounded-xl border border-blue-500/20">
-                        <p class="text-xs text-blue-300 leading-relaxed italic">
-                            *ตารางนี้มีไว้เพื่อการสื่อสารเท่านั้น ไม่ส่งผลต่อการคำนวณ EOH ของระบบ
-                        </p>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzAlUWeXmf7td78850S4M7KzY5KhcI6tkbEO6UlLq6SZK5x7DeAVLjYM_mJ--BoLzJY/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwCvlRTzEWRVlC-ju1My4MSyeSAW1AS0pcTkTIrQFT8p8pcwhaj2gunyWo7Z26cc4rz/exec';
         
+        // Initial Date
         document.getElementById('baseDate').valueAsDate = new Date();
 
         function addOfflineRow() {
@@ -309,11 +314,8 @@
 
             const totalDisplay = document.getElementById('offlineDisplay');
             totalDisplay.innerText = `เลื่อนแผนออกไปรวม +${totalDays} วัน`;
-            if (totalDays > 0) {
-                totalDisplay.classList.add('text-amber-400', 'font-bold');
-            } else {
-                totalDisplay.classList.remove('text-amber-400', 'font-bold');
-            }
+            totalDisplay.className = totalDays > 0 ? "mt-4 text-center text-sm font-bold text-amber-400 bg-slate-800/50 py-2 rounded-xl border border-slate-700/50" : "mt-4 text-center text-sm font-medium text-slate-400 bg-slate-800/50 py-2 rounded-xl border border-slate-700/50";
+            
             return { total: totalDays, text: summary.join(', ') };
         }
 
@@ -328,8 +330,6 @@
             } catch (e) { console.log("Counter loading failed", e); }
         }
 
-        window.onload = fetchCounterInfo;
-
         async function saveAndCalculate() {
             const baseDateInput = document.getElementById('baseDate').value;
             const currentEOH = parseFloat(document.getElementById('currentEOH').value);
@@ -338,7 +338,7 @@
             const offlineInfo = updateOfflineDays();
 
             if (!baseDateInput || isNaN(currentEOH) || isNaN(avgRate) || avgRate <= 0) { 
-                if (event && event.type === 'click') alert("กรุณากรอกข้อมูลให้ครบถ้วน"); 
+                if (window.event && window.event.type === 'click') alert("กรุณากรอกข้อมูลให้ครบถ้วน"); 
                 return; 
             }
 
@@ -348,16 +348,17 @@
             const extraC = parseInt(document.getElementById('extra_typeC').value) || 0;
 
             const schedule = [
-                { id: 'typeA1', name: 'Type A1', limit: 9000, duration: 8 + extraA1 },
-                { id: 'typeB', name: 'Type B', limit: 18000, duration: 9 + extraB },
-                { id: 'typeA2', name: 'Type A2', limit: 27000, duration: 8 + extraA2 },
-                { id: 'typeC', name: 'Type C', limit: 36000, duration: 37 + extraC }
+                { id: 'typeA1', limit: 9000, duration: 8 + extraA1 },
+                { id: 'typeB', limit: 18000, duration: 9 + extraB },
+                { id: 'typeA2', limit: 27000, duration: 8 + extraA2 },
+                { id: 'typeC', limit: 36000, duration: 37 + extraC }
             ];
 
             const baseDate = new Date(baseDateInput);
             let dayOffset = 0; 
             let firstPredictDate = null;
 
+            // Logic to find first relevant maintenance
             for (let item of schedule) {
                 if (currentEOH < item.limit) {
                     let daysUntil = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total;
@@ -367,25 +368,20 @@
                 }
             }
 
+            // Calculate manual offset
             if (manualActualDateInput && firstPredictDate) {
                 const actualDate = new Date(manualActualDateInput);
-                const diffTime = actualDate - firstPredictDate;
-                dayOffset = Math.round(diffTime / (1000 * 60 * 60 * 24));
-
+                dayOffset = Math.round((actualDate - firstPredictDate) / (1000 * 60 * 60 * 24));
                 if (dayOffset > 7) {
-                    alert(`⚠️ ห้ามกำหนดวันซ่อมจริงเลทจากวันพยากณ์เดิมเกิน 7 วัน (ปัจจุบันเลท ${dayOffset} วัน)`);
+                    alert(`⚠️ ห้ามกำหนดวันซ่อมจริงเลทเกิน 7 วัน (ปัจจุบันเลท ${dayOffset} วัน)`);
                     return;
                 }
             }
 
+            const isClick = window.event && window.event.type === 'click';
             const btn = document.getElementById('btnSave');
-            const isClick = event && event.type === 'click';
-            
-            if (isClick) {
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
-                btn.disabled = true;
-            }
 
+            // UI Update
             schedule.forEach((item) => {
                 const dayEl = document.getElementById(`${item.id}_days`);
                 const startEl = document.getElementById(`${item.id}_start`);
@@ -395,25 +391,26 @@
                     dayEl.innerText = "OVERDUE";
                     startEl.innerText = "ผ่านมาแล้ว";
                     finishEl.innerText = "-";
-                    return;
+                } else {
+                    let daysUntil = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total;
+                    let startDate = new Date(baseDate);
+                    startDate.setDate(baseDate.getDate() + daysUntil + dayOffset); 
+                    
+                    const finishDate = new Date(startDate);
+                    finishDate.setDate(startDate.getDate() + item.duration);
+                    
+                    const diffDays = Math.ceil((startDate - new Date()) / (1000 * 60 * 60 * 24));
+                    dayEl.innerText = `${diffDays.toLocaleString()} วัน`;
+                    startEl.innerText = "เริ่ม: " + startDate.toLocaleDateString('th-TH');
+                    finishEl.innerText = "เสร็จ: " + finishDate.toLocaleDateString('th-TH');
                 }
-
-                let daysUntil = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total;
-                let startDate = new Date(baseDate);
-                startDate.setDate(baseDate.getDate() + daysUntil + dayOffset); 
-                
-                const finishDate = new Date(startDate);
-                finishDate.setDate(startDate.getDate() + item.duration);
-                const diffDays = Math.ceil((startDate.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
-
-                dayEl.innerText = `${diffDays.toLocaleString()} วัน`;
-                startEl.innerText = "เริ่ม: " + startDate.toLocaleDateString('th-TH');
-                finishEl.innerText = "เสร็จ: " + finishDate.toLocaleDateString('th-TH');
             });
 
             if (isClick) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
+                btn.disabled = true;
                 try {
-                    const response = await fetch(SCRIPT_URL, {
+                    await fetch(SCRIPT_URL, {
                         method: 'POST',
                         body: JSON.stringify({
                             recordDate: baseDateInput,
@@ -422,24 +419,21 @@
                             offlineDays: offlineInfo.total,
                             offlineStart: offlineInfo.text,
                             dayOffset: dayOffset,
-                            extraDays: {
-                                A1: extraA1,
-                                B: extraB,
-                                A2: extraA2,
-                                C: extraC
-                            }
+                            extraDays: { A1: extraA1, B: extraB, A2: extraA2, C: extraC }
                         })
                     });
-                    alert("บันทึกข้อมูลเรียบร้อย" + (dayOffset < 0 ? ` (ซ่อมก่อนแผน ${Math.abs(dayOffset)} วัน)` : (dayOffset > 0 ? ` (ชิปวันที่ ${dayOffset} วัน)` : "")));
+                    alert("บันทึกข้อมูลเรียบร้อย!");
                     fetchCounterInfo();
-                } catch (e) { 
-                    alert("Error connecting to Sheets"); 
-                } finally { 
-                    btn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i> บันทึกและพยากรณ์'; 
-                    btn.disabled = false; 
+                } catch (e) {
+                    alert("เชื่อมต่อ Google Sheets ผิดพลาด");
+                } finally {
+                    btn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i> บันทึกและพยากรณ์';
+                    btn.disabled = false;
                 }
             }
         }
+
+        window.onload = fetchCounterInfo;
     </script>
 </body>
 </html>
