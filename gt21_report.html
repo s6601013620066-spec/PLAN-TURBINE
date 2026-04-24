@@ -83,8 +83,8 @@
     </div>
 
     <script>
-        // อัปเดตเป็นลิงก์ใหม่ตามที่คุณระบุ
-        const REPORT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDw-Fuxl9SqBpiNbrWB8xydw-qWRrulPOmyvv9KdZ26vKaA7E0kanHbiBaybTRkhOU/exec';
+        // อัปเดตเป็นลิงก์ใหม่ที่คุณระบุ
+        const REPORT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzAlUWeXmf7td78850S4M7KzY5KhcI6tkbEO6UlLq6SZK5x7DeAVLjYM_mJ--BoLzJY/exec';
 
         document.getElementById('reportDate').valueAsDate = new Date();
 
@@ -141,15 +141,21 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
 
             try {
+                // ใช้ no-cors หรือส่งแบบปกติขึ้นอยู่กับการตั้งค่า Google Apps Script
                 await fetch(REPORT_SCRIPT_URL, { 
                     method: 'POST', 
+                    mode: 'no-cors', // แนะนำให้ใช้ no-cors สำหรับ Google Script เพื่อหลีกเลี่ยงปัญหา CORS
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data) 
                 });
 
                 Swal.fire({ 
                     icon: 'success', 
                     title: 'สำเร็จ!', 
-                    text: 'บันทึกรายงานการซ่อมบำรุงเรียบร้อยแล้ว' 
+                    text: 'บันทึกรายงานการซ่อมบำรุงเรียบร้อยแล้ว (ระบบกำลังประมวลผล)',
+                    timer: 2000,
+                    showConfirmButton: false
                 }).then(() => {
                     window.location.href = 'gt21_predict.html';
                 });
