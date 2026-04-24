@@ -108,7 +108,7 @@
         </div>
 
         <h2 class="text-lg font-semibold mb-4 text-blue-400"><i class="fas fa-calendar-alt mr-2"></i>พยากรณ์รอบปัจจุบัน (Next Maintenance)</h2>
-        <div id="results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <div id="results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div id="card_typeA1" class="glass-card p-5 border-l-4 border-emerald-500">
                 <div class="flex justify-between items-start">
                     <h3 class="text-emerald-400 font-bold text-sm uppercase">Type A1 (9k)</h3>
@@ -151,6 +151,32 @@
                 <div class="space-y-1">
                     <div id="typeC_start" class="text-[11px] text-slate-300">เริ่ม: -</div>
                     <div id="typeC_finish" class="text-[11px] text-red-300">เสร็จ: -</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card p-5 mb-10 border border-slate-700/50">
+            <div class="flex items-center gap-3 mb-4">
+                <i class="fas fa-clock text-blue-400"></i>
+                <h3 class="text-sm font-bold text-blue-300 uppercase tracking-wider">ปรับปรุงจำนวนวันซ่อม (Maintenance Duration)</h3>
+                <span class="text-[10px] text-slate-500 italic">* ระบุจำนวนวันที่ต้องการบวกเพิ่มจากค่ามาตรฐาน (A1:8, B:9, A2:8, C:37)</span>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-[10px] text-emerald-400 mb-1">A1 (+วัน)</label>
+                    <input type="number" id="extra_typeA1" value="0" class="input-field w-full p-2 rounded-lg border-emerald-500/20" onchange="saveAndCalculate()">
+                </div>
+                <div>
+                    <label class="block text-[10px] text-amber-400 mb-1">B (+วัน)</label>
+                    <input type="number" id="extra_typeB" value="0" class="input-field w-full p-2 rounded-lg border-amber-500/20" onchange="saveAndCalculate()">
+                </div>
+                <div>
+                    <label class="block text-[10px] text-emerald-400 mb-1">A2 (+วัน)</label>
+                    <input type="number" id="extra_typeA2" value="0" class="input-field w-full p-2 rounded-lg border-emerald-500/20" onchange="saveAndCalculate()">
+                </div>
+                <div>
+                    <label class="block text-[10px] text-red-400 mb-1">C (+วัน)</label>
+                    <input type="number" id="extra_typeC" value="0" class="input-field w-full p-2 rounded-lg border-red-500/20" onchange="saveAndCalculate()">
                 </div>
             </div>
         </div>
@@ -312,15 +338,22 @@
             const offlineInfo = updateOfflineDays();
 
             if (!baseDateInput || isNaN(currentEOH) || isNaN(avgRate) || avgRate <= 0) { 
-                alert("กรุณากรอกข้อมูลให้ครบถ้วน"); 
+                // ถ้าเป็นการเปลี่ยนค่าใน extra days ให้คำนวณเงียบๆ แต่ถ้ากดปุ่มบันทึกค่อย Alert
+                if (event && event.type === 'click') alert("กรุณากรอกข้อมูลให้ครบถ้วน"); 
                 return; 
             }
 
+            // ดึงค่า Extra Days จาก Input ใหม่
+            const extraA1 = parseInt(document.getElementById('extra_typeA1').value) || 0;
+            const extraB = parseInt(document.getElementById('extra_typeB').value) || 0;
+            const extraA2 = parseInt(document.getElementById('extra_typeA2').value) || 0;
+            const extraC = parseInt(document.getElementById('extra_typeC').value) || 0;
+
             const schedule = [
-                { id: 'typeA1', name: 'Type A1', limit: 9000, duration: 8 },
-                { id: 'typeB', name: 'Type B', limit: 18000, duration: 9 },
-                { id: 'typeA2', name: 'Type A2', limit: 27000, duration: 8 },
-                { id: 'typeC', name: 'Type C', limit: 36000, duration: 37 }
+                { id: 'typeA1', name: 'Type A1', limit: 9000, duration: 8 + extraA1 },
+                { id: 'typeB', name: 'Type B', limit: 18000, duration: 9 + extraB },
+                { id: 'typeA2', name: 'Type A2', limit: 27000, duration: 8 + extraA2 },
+                { id: 'typeC', name: 'Type C', limit: 36000, duration: 37 + extraC }
             ];
 
             const baseDate = new Date(baseDateInput);
@@ -341,17 +374,19 @@
                 const diffTime = actualDate - firstPredictDate;
                 dayOffset = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
-                // แก้ไขเงื่อนไข: ยอมรับวันซ่อมก่อนแผน (dayOffset < 0) เสมอ 
-                // แต่ถ้าซ่อมหลังแผน (dayOffset > 0) ห้ามเกิน 7 วัน
                 if (dayOffset > 7) {
-                    alert(`⚠️ ห้ามกำหนดวันซ่อมจริงเลทจากวันพยากรณ์เดิมเกิน 7 วัน (ปัจจุบันเลท ${dayOffset} วัน)`);
+                    alert(`⚠️ ห้ามกำหนดวันซ่อมจริงเลทจากวันพยากณ์เดิมเกิน 7 วัน (ปัจจุบันเลท ${dayOffset} วัน)`);
                     return;
                 }
             }
 
             const btn = document.getElementById('btnSave');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
-            btn.disabled = true;
+            const isClick = event && event.type === 'click';
+            
+            if (isClick) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
+                btn.disabled = true;
+            }
 
             schedule.forEach((item) => {
                 const dayEl = document.getElementById(`${item.id}_days`);
@@ -378,25 +413,27 @@
                 finishEl.innerText = "เสร็จ: " + finishDate.toLocaleDateString('th-TH');
             });
 
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        recordDate: baseDateInput,
-                        currentEOH: currentEOH,
-                        avgRate: avgRate,
-                        offlineDays: offlineInfo.total,
-                        offlineStart: offlineInfo.text,
-                        dayOffset: dayOffset
-                    })
-                });
-                alert("บันทึกข้อมูลเรียบร้อย" + (dayOffset < 0 ? ` (ซ่อมก่อนแผน ${Math.abs(dayOffset)} วัน)` : (dayOffset > 0 ? ` (ชิปวันที่ ${dayOffset} วัน)` : "")));
-                fetchCounterInfo();
-            } catch (e) { 
-                alert("Error connecting to Sheets"); 
-            } finally { 
-                btn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i> บันทึกและพยากรณ์'; 
-                btn.disabled = false; 
+            if (isClick) {
+                try {
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            recordDate: baseDateInput,
+                            currentEOH: currentEOH,
+                            avgRate: avgRate,
+                            offlineDays: offlineInfo.total,
+                            offlineStart: offlineInfo.text,
+                            dayOffset: dayOffset
+                        })
+                    });
+                    alert("บันทึกข้อมูลเรียบร้อย" + (dayOffset < 0 ? ` (ซ่อมก่อนแผน ${Math.abs(dayOffset)} วัน)` : (dayOffset > 0 ? ` (ชิปวันที่ ${dayOffset} วัน)` : "")));
+                    fetchCounterInfo();
+                } catch (e) { 
+                    alert("Error connecting to Sheets"); 
+                } finally { 
+                    btn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i> บันทึกและพยากรณ์'; 
+                    btn.disabled = false; 
+                }
             }
         }
     </script>
