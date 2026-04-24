@@ -379,6 +379,15 @@
             } catch (e) { console.log("Counter loading failed", e); }
         }
 
+        // ฟังก์ชันช่วยแปลงวันที่ภาษาไทยหน้าจอ เป็น YYYY-MM-DD ส่งเข้า Script
+        function parseToISO(text, prefix) {
+            const raw = text.replace(prefix, '').trim();
+            const parts = raw.split('/');
+            if (parts.length < 3) return "";
+            // ส่วนที่แสดงบนจอคือ d/m/y พลิกเป็น y-m-d
+            return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+        }
+
         async function saveAndCalculate() {
             const baseDateInput = document.getElementById('baseDate').value;
             const currentEOH = parseFloat(document.getElementById('currentEOH').value);
@@ -451,27 +460,24 @@
                         foundNext = true;
                     }
 
-                    // 1. คำนวณวันรอคอย (Running Days) - ไม่รวมสะสมวันซ่อม เพื่อโชว์บนการ์ด
+                    // 1. คำนวณวันรอคอย (Running Days)
                     let runningDaysOnly = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total + dayOffset;
                     
-                    // 2. คำนวณวันที่เริ่มในปฏิทิน (Calendar Start Date) - ต้องรวมสะสมวันซ่อม
+                    // 2. คำนวณวันที่เริ่มจริง (ต้องบวกสะสมวันซ่อมของ Type ก่อนหน้า)
                     let startDate = new Date(baseDate);
-                    let calendarDaysTotal = runningDaysOnly + maintenanceAccumulatedDays;
-                    startDate.setDate(baseDate.getDate() + calendarDaysTotal);
+                    startDate.setDate(baseDate.getDate() + runningDaysOnly + maintenanceAccumulatedDays);
 
-                    // 3. คำนวณวันที่เสร็จ
                     const finishDate = new Date(startDate);
                     finishDate.setDate(startDate.getDate() + item.duration);
 
-                    // แสดงผลตัวเลข "--- วัน" โดยคำนวณจากระยะห่างของวันที่เริ่มซ่อมจริงกับวันนี้ ลบด้วยวันซ่อมที่ผ่านไปแล้ว
-                    // หรือใช้ค่า runningDaysOnly ตรงๆ หากต้องการนับจากวันที่บันทึกข้อมูล
-                    const diffDaysToDisplay = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24)) - maintenanceAccumulatedDays;
+                    // แสดงผลตัวเลข "--- วัน" บนการ์ด (อ้างอิงจากวันนี้)
+                    const diffDaysToDisplay = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24));
                     
                     dayEl.innerText = `${diffDaysToDisplay.toLocaleString()} วัน`;
                     startEl.innerText = "เริ่ม: " + startDate.toLocaleDateString('th-TH');
                     finishEl.innerText = "เสร็จ: " + finishDate.toLocaleDateString('th-TH');
 
-                    // สะสมวันซ่อมไว้ใช้ในรอบถัดไป (เพื่อให้วันที่เริ่มซ่อมถัดไปไม่ทับกับช่วงซ่อมก่อนหน้า)
+                    // สะสมวันซ่อมไว้บวกให้ตัวถัดไป
                     maintenanceAccumulatedDays += item.duration;
 
                     if (diffDaysToDisplay <= 30 && diffDaysToDisplay > 0) {
@@ -502,7 +508,26 @@
                             adjA1: schedule[0].duration,
                             adjB:  schedule[1].duration,
                             adjA2: schedule[2].duration,
-                            adjC:  schedule[3].duration
+                            adjC:  schedule[3].duration,
+                            // ส่งข้อมูลวันที่ที่หน้าจอคำนวณสะสมเสร็จแล้วไปให้ Script
+                            webDates: {
+                                "A1": { 
+                                    start: parseToISO(document.getElementById('typeA1_start').innerText, 'เริ่ม:'),
+                                    finish: parseToISO(document.getElementById('typeA1_finish').innerText, 'เสร็จ:')
+                                },
+                                "B": { 
+                                    start: parseToISO(document.getElementById('typeB_start').innerText, 'เริ่ม:'),
+                                    finish: parseToISO(document.getElementById('typeB_finish').innerText, 'เสร็จ:')
+                                },
+                                "A2": { 
+                                    start: parseToISO(document.getElementById('typeA2_start').innerText, 'เริ่ม:'),
+                                    finish: parseToISO(document.getElementById('typeA2_finish').innerText, 'เสร็จ:')
+                                },
+                                "C": { 
+                                    start: parseToISO(document.getElementById('typeC_start').innerText, 'เริ่ม:'),
+                                    finish: parseToISO(document.getElementById('typeC_finish').innerText, 'เสร็จ:')
+                                }
+                            }
                         })
                     });
                     alert("บันทึกข้อมูลเรียบร้อย!");
