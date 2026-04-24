@@ -59,7 +59,6 @@
             background: linear-gradient(90deg, #3b82f6, #10b981);
             transition: width 0.5s ease-in-out;
         }
-        /* เพิ่มสถานะความเร่งด่วน */
         .urgent-warning { border-left: 4px solid #f43f5e !important; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
     </style>
@@ -291,7 +290,6 @@
         
         document.getElementById('baseDate').valueAsDate = new Date();
 
-        // Backup Data to Local Storage
         function backupInputData() {
             const data = {
                 eoh: document.getElementById('currentEOH').value,
@@ -391,7 +389,7 @@
             if (!baseDateInput || isNaN(currentEOH) || isNaN(avgRate) || avgRate <= 0) return; 
             if (currentEOH < 0) { alert("EOH ไม่สามารถติดลบได้"); return; }
             
-            backupInputData(); // Backup current values
+            backupInputData();
 
             const extraA1 = parseInt(document.getElementById('extra_typeA1').value) || 0;
             const extraB = parseInt(document.getElementById('extra_typeB').value) || 0;
@@ -406,6 +404,9 @@
             ];
 
             const baseDate = new Date(baseDateInput);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
             let dayOffset = 0; 
             let firstPredictDate = null;
 
@@ -450,22 +451,30 @@
                         foundNext = true;
                     }
 
-                    let daysFromLastToNow = Math.floor((item.limit - currentEOH) / avgRate);
+                    // 1. คำนวณวันรอคอย (Running Days) - ไม่รวมสะสมวันซ่อม เพื่อโชว์บนการ์ด
+                    let runningDaysOnly = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total + dayOffset;
+                    
+                    // 2. คำนวณวันที่เริ่มในปฏิทิน (Calendar Start Date) - ต้องรวมสะสมวันซ่อม
                     let startDate = new Date(baseDate);
-                    let totalWaitDays = daysFromLastToNow + offlineInfo.total + dayOffset + maintenanceAccumulatedDays;
-                    startDate.setDate(baseDate.getDate() + totalWaitDays);
+                    let calendarDaysTotal = runningDaysOnly + maintenanceAccumulatedDays;
+                    startDate.setDate(baseDate.getDate() + calendarDaysTotal);
 
+                    // 3. คำนวณวันที่เสร็จ
                     const finishDate = new Date(startDate);
                     finishDate.setDate(startDate.getDate() + item.duration);
-                    maintenanceAccumulatedDays += item.duration;
 
-                    const diffDays = Math.ceil((startDate - new Date()) / (1000 * 60 * 60 * 24));
-                    dayEl.innerText = `${diffDays.toLocaleString()} วัน`;
+                    // แสดงผลตัวเลข "--- วัน" โดยคำนวณจากระยะห่างของวันที่เริ่มซ่อมจริงกับวันนี้ ลบด้วยวันซ่อมที่ผ่านไปแล้ว
+                    // หรือใช้ค่า runningDaysOnly ตรงๆ หากต้องการนับจากวันที่บันทึกข้อมูล
+                    const diffDaysToDisplay = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24)) - maintenanceAccumulatedDays;
+                    
+                    dayEl.innerText = `${diffDaysToDisplay.toLocaleString()} วัน`;
                     startEl.innerText = "เริ่ม: " + startDate.toLocaleDateString('th-TH');
                     finishEl.innerText = "เสร็จ: " + finishDate.toLocaleDateString('th-TH');
 
-                    // Urgent Warning (Less than 30 days)
-                    if (diffDays <= 30 && diffDays > 0) {
+                    // สะสมวันซ่อมไว้ใช้ในรอบถัดไป (เพื่อให้วันที่เริ่มซ่อมถัดไปไม่ทับกับช่วงซ่อมก่อนหน้า)
+                    maintenanceAccumulatedDays += item.duration;
+
+                    if (diffDaysToDisplay <= 30 && diffDaysToDisplay > 0) {
                         cardEl.classList.add('urgent-warning');
                     }
                 }
