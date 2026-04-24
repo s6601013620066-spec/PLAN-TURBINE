@@ -73,7 +73,7 @@
             </div>
             
             <div class="flex flex-wrap justify-center gap-3">
-                <a href="YOUR_NEW_SHEET_URL_HERE" target="_blank" class="bg-amber-600/20 hover:bg-amber-600/40 text-amber-400 border border-amber-500/50 font-semibold py-2.5 px-6 rounded-xl transition-all flex items-center shadow-lg">
+                <a href="https://docs.google.com/spreadsheets/d/1-CjAYpVAM6KMzn4-jWBRwuuJUMI7rnEWuLRx01eAeJY/edit?pli=1&gid=0#gid=0" target="_blank" class="bg-amber-600/20 hover:bg-amber-600/40 text-amber-400 border border-amber-500/50 font-semibold py-2.5 px-6 rounded-xl transition-all flex items-center shadow-lg">
                     <i class="fas fa-table mr-2"></i> ตรวจสอบ Google Sheet
                 </a>
 
@@ -286,7 +286,7 @@
     </div>
 
     <script>
-        // แก้ไข URL เป็นของเครื่องใหม่ที่นี่
+        // อัปเดตลิงค์ Apps Script ที่นี่
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwm_vsw8ydfstLgMQBcPMpQ73u_jFgeL8vYOntl8ZKJu5kmFRhfSa0SY_A1AG8nT8Dd/exec';
         
         document.getElementById('baseDate').valueAsDate = new Date();
@@ -296,7 +296,6 @@
                 eoh: document.getElementById('currentEOH').value,
                 rate: document.getElementById('avgEOHPerDay').value
             };
-            // เปลี่ยน Key ใน localStorage เพื่อให้แยกข้อมูลกันระหว่างเครื่อง
             localStorage.setItem('gt22_planner_backup', JSON.stringify(data));
         }
 
