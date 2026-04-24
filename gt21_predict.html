@@ -59,6 +59,9 @@
             background: linear-gradient(90deg, #3b82f6, #10b981);
             transition: width 0.5s ease-in-out;
         }
+        /* เพิ่มสถานะความเร่งด่วน */
+        .urgent-warning { border-left: 4px solid #f43f5e !important; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
     </style>
 </head>
 <body class="p-4 md:p-10">
@@ -288,6 +291,25 @@
         
         document.getElementById('baseDate').valueAsDate = new Date();
 
+        // Backup Data to Local Storage
+        function backupInputData() {
+            const data = {
+                eoh: document.getElementById('currentEOH').value,
+                rate: document.getElementById('avgEOHPerDay').value
+            };
+            localStorage.setItem('gt21_planner_backup', JSON.stringify(data));
+        }
+
+        function restoreInputData() {
+            const saved = localStorage.getItem('gt21_planner_backup');
+            if (saved) {
+                const data = JSON.parse(saved);
+                document.getElementById('currentEOH').value = data.eoh;
+                document.getElementById('avgEOHPerDay').value = data.rate;
+                saveAndCalculate();
+            }
+        }
+
         function addOfflineRow() {
             const container = document.getElementById('offline-container');
             const newRow = document.createElement('div');
@@ -366,9 +388,10 @@
             const manualActualDateInput = document.getElementById('manualActualDate').value; 
             const offlineInfo = updateOfflineDays();
 
-            if (!baseDateInput || isNaN(currentEOH) || isNaN(avgRate) || avgRate <= 0) { 
-                return; 
-            }
+            if (!baseDateInput || isNaN(currentEOH) || isNaN(avgRate) || avgRate <= 0) return; 
+            if (currentEOH < 0) { alert("EOH ไม่สามารถติดลบได้"); return; }
+            
+            backupInputData(); // Backup current values
 
             const extraA1 = parseInt(document.getElementById('extra_typeA1').value) || 0;
             const extraB = parseInt(document.getElementById('extra_typeB').value) || 0;
@@ -385,20 +408,16 @@
             const baseDate = new Date(baseDateInput);
             let dayOffset = 0; 
             let firstPredictDate = null;
-            let targetCardId = null;
 
-            // Find first upcoming maintenance
             for (let item of schedule) {
                 if (currentEOH < item.limit) {
                     let daysUntil = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total;
                     firstPredictDate = new Date(baseDate);
                     firstPredictDate.setDate(baseDate.getDate() + daysUntil);
-                    targetCardId = `card_${item.id}`;
                     break;
                 }
             }
 
-            // Manual Offset Calculation
             if (manualActualDateInput && firstPredictDate) {
                 const actualDate = new Date(manualActualDateInput);
                 dayOffset = Math.round((actualDate - firstPredictDate) / (1000 * 60 * 60 * 24));
@@ -408,7 +427,6 @@
                 }
             }
 
-            // Calculate Chain Maintenance
             let maintenanceAccumulatedDays = 0;
             let foundNext = false;
 
@@ -418,8 +436,7 @@
                 const startEl = document.getElementById(`${item.id}_start`);
                 const finishEl = document.getElementById(`${item.id}_finish`);
 
-                // Reset styles
-                cardEl.classList.remove('active-card');
+                cardEl.classList.remove('active-card', 'urgent-warning');
                 cardEl.style.opacity = "1";
 
                 if (currentEOH >= item.limit) {
@@ -428,7 +445,6 @@
                     finishEl.innerText = "-";
                     cardEl.style.opacity = "0.5";
                 } else {
-                    // Highlight the very next maintenance
                     if (!foundNext) {
                         cardEl.classList.add('active-card');
                         foundNext = true;
@@ -441,22 +457,24 @@
 
                     const finishDate = new Date(startDate);
                     finishDate.setDate(startDate.getDate() + item.duration);
-
                     maintenanceAccumulatedDays += item.duration;
 
                     const diffDays = Math.ceil((startDate - new Date()) / (1000 * 60 * 60 * 24));
                     dayEl.innerText = `${diffDays.toLocaleString()} วัน`;
                     startEl.innerText = "เริ่ม: " + startDate.toLocaleDateString('th-TH');
                     finishEl.innerText = "เสร็จ: " + finishDate.toLocaleDateString('th-TH');
+
+                    // Urgent Warning (Less than 30 days)
+                    if (diffDays <= 30 && diffDays > 0) {
+                        cardEl.classList.add('urgent-warning');
+                    }
                 }
             });
 
-            // Update Progress Bar (Max 36000 EOH)
             const progressPercent = Math.min(100, (currentEOH / 36000) * 100).toFixed(1);
             document.getElementById('timeline-bar').style.width = `${progressPercent}%`;
             document.getElementById('overall-progress-text').innerText = `Progress to 36k: ${progressPercent}%`;
 
-            // Database Save Logic (Only on click)
             const isClick = window.event && window.event.type === 'click' && window.event.target.id === 'btnSave';
             if (isClick) {
                 const btn = document.getElementById('btnSave');
@@ -489,12 +507,14 @@
             }
         }
 
-        // Auto calculate when EOH or Rate changes
         document.getElementById('currentEOH').addEventListener('input', saveAndCalculate);
         document.getElementById('avgEOHPerDay').addEventListener('input', saveAndCalculate);
         document.getElementById('baseDate').addEventListener('change', saveAndCalculate);
 
-        window.onload = fetchCounterInfo;
+        window.onload = () => {
+            restoreInputData();
+            fetchCounterInfo();
+        };
     </script>
 </body>
 </html>
