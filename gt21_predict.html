@@ -71,7 +71,7 @@
                         <input type="date" id="manualActualDate" class="input-field w-full p-2.5 rounded-xl border-blue-400/20">
                     </div>
                     <p class="text-[11px] text-slate-400 italic">
-                        * ระบุเฉพาะเมื่อต้องการเลื่อนแผนทั้งหมด โดยยึดวันซ่อมจริงของ Type แรกเป็นหลัก (ห้ามเกิน 1 อาทิตย์จากวันพยากรณ์เดิม)
+                        * ระบุเฉพาะเมื่อต้องการเลื่อนแผนทั้งหมด โดยยึดวันซ่อมจริงของ Type แรกเป็นหลัก (ห้ามเลทเกิน 1 อาทิตย์จากวันพยากรณ์เดิม)
                     </p>
                 </div>
             </div>
@@ -224,7 +224,6 @@
     </div>
 
     <script>
-        // อัปเดตลิงก์ใหม่ตามที่คุณส่งมา
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDw-Fuxl9SqBpiNbrWB8xydw-qWRrulPOmyvv9KdZ26vKaA7E0kanHbiBaybTRkhOU/exec';
         
         document.getElementById('baseDate').valueAsDate = new Date();
@@ -328,7 +327,6 @@
             let dayOffset = 0; 
             let firstPredictDate = null;
 
-            // คำนวณวันซ่อมวันแรกเพื่อหา Offset
             for (let item of schedule) {
                 if (currentEOH < item.limit) {
                     let daysUntil = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total;
@@ -338,14 +336,15 @@
                 }
             }
 
-            // ตรวจสอบเงื่อนไขการ Manual Override (ห้ามห่างเกิน 7 วัน)
             if (manualActualDateInput && firstPredictDate) {
                 const actualDate = new Date(manualActualDateInput);
                 const diffTime = actualDate - firstPredictDate;
                 dayOffset = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
-                if (Math.abs(dayOffset) > 7) {
-                    alert(`⚠️ ห้ามกำหนดวันซ่อมจริงห่างจากวันพยากรณ์เดิมเกิน 7 วัน (ปัจจุบันห่าง ${Math.abs(dayOffset)} วัน)`);
+                // แก้ไขเงื่อนไข: ยอมรับวันซ่อมก่อนแผน (dayOffset < 0) เสมอ 
+                // แต่ถ้าซ่อมหลังแผน (dayOffset > 0) ห้ามเกิน 7 วัน
+                if (dayOffset > 7) {
+                    alert(`⚠️ ห้ามกำหนดวันซ่อมจริงเลทจากวันพยากรณ์เดิมเกิน 7 วัน (ปัจจุบันเลท ${dayOffset} วัน)`);
                     return;
                 }
             }
@@ -388,10 +387,10 @@
                         avgRate: avgRate,
                         offlineDays: offlineInfo.total,
                         offlineStart: offlineInfo.text,
-                        dayOffset: dayOffset // ส่งค่าที่คำนวณได้ไปบันทึก
+                        dayOffset: dayOffset
                     })
                 });
-                alert("บันทึกข้อมูลเรียบร้อย" + (dayOffset !== 0 ? ` (ชิปวันที่ ${dayOffset} วัน)` : ""));
+                alert("บันทึกข้อมูลเรียบร้อย" + (dayOffset < 0 ? ` (ซ่อมก่อนแผน ${Math.abs(dayOffset)} วัน)` : (dayOffset > 0 ? ` (ชิปวันที่ ${dayOffset} วัน)` : "")));
                 fetchCounterInfo();
             } catch (e) { 
                 alert("Error connecting to Sheets"); 
