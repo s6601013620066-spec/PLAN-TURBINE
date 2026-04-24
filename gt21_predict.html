@@ -256,7 +256,6 @@
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxrY2ruSuBOR2sclAwFn-Weoh6YljbWhJK8wJJa3LrLimCJhICw8A6Tk3LBXUtzQog/exec';
         
-        // Initial Date
         document.getElementById('baseDate').valueAsDate = new Date();
 
         function addOfflineRow() {
@@ -356,9 +355,9 @@
 
             const baseDate = new Date(baseDateInput);
             let dayOffset = 0; 
+            
+            // ค้นหารายการแรกที่ต้องซ่อมเพื่อคำนวณ Manual Offset
             let firstPredictDate = null;
-
-            // Logic to find first relevant maintenance
             for (let item of schedule) {
                 if (currentEOH < item.limit) {
                     let daysUntil = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total;
@@ -368,7 +367,6 @@
                 }
             }
 
-            // Calculate manual offset
             if (manualActualDateInput && firstPredictDate) {
                 const actualDate = new Date(manualActualDateInput);
                 dayOffset = Math.round((actualDate - firstPredictDate) / (1000 * 60 * 60 * 24));
@@ -378,10 +376,11 @@
                 }
             }
 
-            const isClick = window.event && window.event.type === 'click';
-            const btn = document.getElementById('btnSave');
+            // --- ส่วนที่แก้ไข: การคำนวณแบบลูกโซ่ ---
+            let lastFinishDate = new Date(baseDate);
+            let lastLimit = currentEOH;
+            let maintenanceAccumulatedDays = 0;
 
-            // UI Update
             schedule.forEach((item) => {
                 const dayEl = document.getElementById(`${item.id}_days`);
                 const startEl = document.getElementById(`${item.id}_start`);
@@ -391,14 +390,22 @@
                     dayEl.innerText = "OVERDUE";
                     startEl.innerText = "ผ่านมาแล้ว";
                     finishEl.innerText = "-";
+                    lastLimit = item.limit; 
                 } else {
-                    let daysUntil = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total;
+                    // คำนวณวันเริ่ม: เริ่มจากวันที่ปัจจุบัน + (EOH ที่เหลือ / avgRate) + วันหยุด + Offset + วันซ่อมของรายการก่อนหน้า
+                    let daysFromLastToNow = Math.floor((item.limit - currentEOH) / avgRate);
                     let startDate = new Date(baseDate);
-                    startDate.setDate(baseDate.getDate() + daysUntil + dayOffset); 
                     
+                    // สูตร: วันที่เริ่ม = วันบันทึก + (EOH ที่ต้องรัน) + วันหยุด + Offset + จำนวนวันที่เคยใช้ซ่อมมาแล้วก่อนหน้านี้
+                    let totalWaitDays = daysFromLastToNow + offlineInfo.total + dayOffset + maintenanceAccumulatedDays;
+                    startDate.setDate(baseDate.getDate() + totalWaitDays);
+
                     const finishDate = new Date(startDate);
                     finishDate.setDate(startDate.getDate() + item.duration);
-                    
+
+                    // อัปเดตตัวแปรสะสม: บวกจำนวนวันที่ใช้ซ่อมใน Type นี้เข้าไปเพื่อให้ Type ถัดไปขยับออกไป
+                    maintenanceAccumulatedDays += item.duration;
+
                     const diffDays = Math.ceil((startDate - new Date()) / (1000 * 60 * 60 * 24));
                     dayEl.innerText = `${diffDays.toLocaleString()} วัน`;
                     startEl.innerText = "เริ่ม: " + startDate.toLocaleDateString('th-TH');
@@ -406,11 +413,13 @@
                 }
             });
 
+            const isClick = window.event && window.event.type === 'click';
+            const btn = document.getElementById('btnSave');
+
             if (isClick) {
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
                 btn.disabled = true;
                 try {
-                    // แก้ไข: ส่งค่าวันซ่อมที่ปรับปรุงแล้ว (adj) ไปที่ App Script ด้วย
                     await fetch(SCRIPT_URL, {
                         method: 'POST',
                         body: JSON.stringify({
@@ -420,7 +429,6 @@
                             offlineDays: offlineInfo.total,
                             offlineStart: offlineInfo.text,
                             dayOffset: dayOffset,
-                            // ส่งข้อมูลระยะเวลาซ่อมที่คำนวณจาก (มาตรฐาน + extra)
                             adjA1: schedule[0].duration,
                             adjB:  schedule[1].duration,
                             adjA2: schedule[2].duration,
