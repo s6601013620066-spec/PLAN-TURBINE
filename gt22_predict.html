@@ -88,26 +88,28 @@
         </header>
 
         <div class="glass-card p-8 mb-8 shadow-2xl">
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">วันที่บันทึกข้อมูล</label>
-                    <input type="date" id="baseDate" class="input-field w-full p-3 rounded-xl" onchange="runCalculationOnly()">
+            <div class="flex flex-col lg:flex-row gap-4 mb-6 items-end">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 flex-grow w-full">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">วันที่บันทึกข้อมูล</label>
+                        <input type="date" id="baseDate" class="input-field w-full p-3 rounded-xl" onchange="runCalculationOnly()">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Current EOH (Hrs)</label>
+                        <input type="number" id="currentEOH" placeholder="0.00" class="input-field w-full p-3 rounded-xl text-xl font-bold border-blue-500/30" oninput="runCalculationOnly()">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Avg. EOH / Day</label>
+                        <input type="number" id="avgEOHPerDay" value="24" class="input-field w-full p-3 rounded-xl" oninput="runCalculationOnly()">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-amber-400 uppercase mb-2">Downtime (%)</label>
+                        <input type="number" id="allowancePercent" value="3" step="0.1" class="input-field w-full p-3 rounded-xl border-amber-500/30 font-bold text-amber-400" oninput="runCalculationOnly()">
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Current EOH (Hrs)</label>
-                    <input type="number" id="currentEOH" placeholder="0.00" class="input-field w-full p-3 rounded-xl text-xl font-bold border-blue-500/30" oninput="runCalculationOnly()">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Avg. EOH / Day</label>
-                    <input type="number" id="avgEOHPerDay" value="24" class="input-field w-full p-3 rounded-xl" oninput="runCalculationOnly()">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-amber-400 uppercase mb-2">Downtime (%)</label>
-                    <input type="number" id="allowancePercent" value="3" step="0.1" class="input-field w-full p-3 rounded-xl border-amber-500/30 font-bold text-amber-400" oninput="runCalculationOnly()">
-                </div>
-                <div class="flex items-end">
-                    <button onclick="handleSaveButtonClick()" id="btnSave" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg">
-                        <i class="fas fa-save mr-2"></i> บันทึกข้อมูล GT22
+                <div class="w-full lg:w-auto">
+                    <button onclick="handleSaveButtonClick()" id="btnSave" class="w-full lg:w-56 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg flex items-center justify-center">
+                        <i class="fas fa-save mr-2"></i> บันทึกและพยากรณ์
                     </button>
                 </div>
             </div>
@@ -129,7 +131,7 @@
 
             <div class="pt-6 border-t border-slate-700/50">
                 <div class="flex justify-between items-center mb-4">
-                    <label class="block text-xs font-semibold text-slate-500 uppercase">ช่วงเวลาที่เครื่องหยุดทำงาน (Offline Periods)</label>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase">ช่วงเวลาที่เครื่องหยุดทำงาน (OFFLINE PERIODS)</label>
                     <button type="button" onclick="addOfflineRow()" class="text-xs bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 py-1.5 px-4 rounded-lg border border-blue-500/30 transition-all">
                         <i class="fas fa-plus mr-1"></i> เพิ่มช่วงวันหยุด
                     </button>
@@ -138,13 +140,13 @@
                 <div id="offline-container" class="space-y-3"></div>
 
                 <div id="offlineDisplay" class="mt-4 text-center text-sm font-medium text-slate-400 bg-slate-800/50 py-2 rounded-xl border border-slate-700/50">
-                    เครื่องหยุดทำงานรวม 0 วัน
+                    เลื่อนแผนออกไปรวม +0 วัน
                 </div>
             </div>
         </div>
 
         <div class="flex justify-between items-end mb-4">
-            <h2 class="text-lg font-semibold text-blue-400"><i class="fas fa-calendar-alt mr-2"></i>พยากรณ์รอบปัจจุบัน (GT22 Next Maintenance)</h2>
+            <h2 class="text-lg font-semibold text-blue-400"><i class="fas fa-calendar-alt mr-2"></i>พยากรณ์รอบปัจจุบัน (Next Maintenance)</h2>
             <div id="overall-progress-text" class="text-xs text-slate-500 font-medium">Progress to 36k: 0%</div>
         </div>
 
@@ -207,7 +209,7 @@
         <div class="glass-card p-5 mb-10 border border-slate-700/50">
             <div class="flex items-center gap-3 mb-4">
                 <i class="fas fa-clock text-blue-400"></i>
-                <h3 class="text-sm font-bold text-blue-300 uppercase tracking-wider">ปรับปรุงจำนวนวันซ่อม (Maintenance Duration)</h3>
+                <h3 class="text-sm font-bold text-blue-300 uppercase tracking-wider">ปรับปรุงจำนวนวันซ่อม (MAINTENANCE DURATION)</h3>
                 <span class="text-[10px] text-slate-500 italic">* ระบุจำนวนวันที่ต้องการบวกเพิ่มจากค่ามาตรฐาน</span>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -282,7 +284,6 @@
     </div>
 
     <script>
-        // ใส่ลิงก์ App Script URL ของ GT22 เรียบร้อยแล้ว
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwm_vsw8ydfstLgMQBcPMpQ73u_jFgeL8vYOntl8ZKJu5kmFRhfSa0SY_A1AG8nT8Dd/exec';
         
         document.getElementById('baseDate').valueAsDate = new Date();
@@ -368,7 +369,6 @@
         }
 
         async function fetchCounterInfo() {
-            if (SCRIPT_URL.includes('YOUR_')) return; 
             try {
                 const response = await fetch(SCRIPT_URL);
                 const data = await response.json();
@@ -545,7 +545,7 @@
                 } catch (e) {
                     alert("เชื่อมต่อ Google Sheets ผิดพลาด");
                 } finally {
-                    btn.innerHTML = '<i class="fas fa-save mr-2"></i> บันทึกข้อมูล GT22';
+                    btn.innerHTML = '<i class="fas fa-save mr-2"></i> บันทึกและพยากรณ์';
                     btn.disabled = false;
                 }
             }
