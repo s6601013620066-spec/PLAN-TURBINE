@@ -91,23 +91,23 @@
             <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">วันที่บันทึกข้อมูล</label>
-                    <input type="date" id="baseDate" class="input-field w-full p-3 rounded-xl">
+                    <input type="date" id="baseDate" class="input-field w-full p-3 rounded-xl" onchange="runCalculationOnly()">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Current EOH (Hrs)</label>
-                    <input type="number" id="currentEOH" placeholder="0.00" class="input-field w-full p-3 rounded-xl text-xl font-bold border-blue-500/30">
+                    <input type="number" id="currentEOH" placeholder="0.00" class="input-field w-full p-3 rounded-xl text-xl font-bold border-blue-500/30" oninput="runCalculationOnly()">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Avg. EOH / Day</label>
-                    <input type="number" id="avgEOHPerDay" value="24" class="input-field w-full p-3 rounded-xl">
+                    <input type="number" id="avgEOHPerDay" value="24" class="input-field w-full p-3 rounded-xl" oninput="runCalculationOnly()">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-amber-400 uppercase mb-2">Downtime (%)</label>
-                    <input type="number" id="allowancePercent" value="3" step="0.1" class="input-field w-full p-3 rounded-xl border-amber-500/30 font-bold text-amber-400">
+                    <input type="number" id="allowancePercent" value="3" step="0.1" class="input-field w-full p-3 rounded-xl border-amber-500/30 font-bold text-amber-400" oninput="runCalculationOnly()">
                 </div>
                 <div class="flex items-end">
-                    <button onclick="saveAndCalculate()" id="btnSave" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg">
-                        <i class="fas fa-sync-alt mr-2"></i> บันทึกและพยากรณ์
+                    <button onclick="handleSaveButtonClick()" id="btnSave" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg">
+                        <i class="fas fa-save mr-2"></i> บันทึกข้อมูล
                     </button>
                 </div>
             </div>
@@ -119,7 +119,7 @@
                 </div>
                 <div class="flex flex-col md:flex-row items-center gap-4">
                     <div class="w-full md:w-1/3">
-                        <input type="date" id="manualActualDate" class="input-field w-full p-2.5 rounded-xl border-blue-400/20" onchange="saveAndCalculate()">
+                        <input type="date" id="manualActualDate" class="input-field w-full p-2.5 rounded-xl border-blue-400/20" onchange="runCalculationOnly()">
                     </div>
                     <p class="text-[11px] text-slate-400 italic">
                         * ระบุเฉพาะเมื่อต้องการเลื่อนแผนทั้งหมด โดยยึดวันซ่อมจริงของ Type แรกเป็นหลัก (ห้ามเลทเกิน 1 อาทิตย์จากวันพยากรณ์เดิม)
@@ -213,19 +213,19 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-[10px] text-emerald-400 mb-1">A1 (+วัน)</label>
-                    <input type="number" id="extra_typeA1" value="0" class="input-field w-full p-2 rounded-lg border-emerald-500/20" onchange="saveAndCalculate()">
+                    <input type="number" id="extra_typeA1" value="0" class="input-field w-full p-2 rounded-lg border-emerald-500/20" onchange="runCalculationOnly()">
                 </div>
                 <div>
                     <label class="block text-[10px] text-amber-400 mb-1">B (+วัน)</label>
-                    <input type="number" id="extra_typeB" value="0" class="input-field w-full p-2 rounded-lg border-amber-500/20" onchange="saveAndCalculate()">
+                    <input type="number" id="extra_typeB" value="0" class="input-field w-full p-2 rounded-lg border-amber-500/20" onchange="runCalculationOnly()">
                 </div>
                 <div>
                     <label class="block text-[10px] text-emerald-400 mb-1">A2 (+วัน)</label>
-                    <input type="number" id="extra_typeA2" value="0" class="input-field w-full p-2 rounded-lg border-emerald-500/20" onchange="saveAndCalculate()">
+                    <input type="number" id="extra_typeA2" value="0" class="input-field w-full p-2 rounded-lg border-emerald-500/20" onchange="runCalculationOnly()">
                 </div>
                 <div>
                     <label class="block text-[10px] text-red-400 mb-1">C (+วัน)</label>
-                    <input type="number" id="extra_typeC" value="0" class="input-field w-full p-2 rounded-lg border-red-500/20" onchange="saveAndCalculate()">
+                    <input type="number" id="extra_typeC" value="0" class="input-field w-full p-2 rounded-lg border-red-500/20" onchange="runCalculationOnly()">
                 </div>
             </div>
         </div>
@@ -310,7 +310,7 @@
                 document.getElementById('currentEOH').value = data.eoh;
                 document.getElementById('avgEOHPerDay').value = data.rate;
                 if(data.allowance) document.getElementById('allowancePercent').value = data.allowance;
-                saveAndCalculate();
+                saveAndCalculate(false); // คำนวณอย่างเดียวไม่บันทึก
             }
         }
 
@@ -321,17 +321,17 @@
             newRow.innerHTML = `
                 <div>
                     <label class="block text-[10px] text-slate-500 mb-1">เริ่มหยุด</label>
-                    <input type="date" class="offline-start input-field w-full p-2 rounded-lg border-red-500/20" onchange="updateOfflineDays(); saveAndCalculate();">
+                    <input type="date" class="offline-start input-field w-full p-2 rounded-lg border-red-500/20" onchange="updateOfflineDays(); runCalculationOnly();">
                 </div>
                 <div>
                     <label class="block text-[10px] text-slate-500 mb-1">สิ้นสุด</label>
-                    <input type="date" class="offline-end input-field w-full p-2 rounded-lg border-emerald-500/20" onchange="updateOfflineDays(); saveAndCalculate();">
+                    <input type="date" class="offline-end input-field w-full p-2 rounded-lg border-emerald-500/20" onchange="updateOfflineDays(); runCalculationOnly();">
                 </div>
                 <div class="flex items-end gap-2">
                     <div class="offline-item-display text-xs text-slate-400 italic bg-slate-900/50 p-2.5 rounded-lg w-full text-center border border-dashed border-slate-700">
                         รอระบุวันที่
                     </div>
-                    <button onclick="this.parentElement.parentElement.remove(); updateOfflineDays(); saveAndCalculate();" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 p-2.5 rounded-lg border border-red-500/30">
+                    <button onclick="this.parentElement.parentElement.remove(); updateOfflineDays(); runCalculationOnly();" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 p-2.5 rounded-lg border border-red-500/30">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -390,11 +390,28 @@
             if (!raw || raw === "-") return "";
             const parts = raw.split('/');
             if (parts.length < 3) return "";
-            // ส่วนใหญ่วันที่แสดงเป็น dd/mm/yyyy
             return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
         }
 
-        async function saveAndCalculate() {
+        // ฟังก์ชันช่วยเรียกใช้การคำนวณแบบไม่บันทึก
+        function runCalculationOnly() {
+            saveAndCalculate(false);
+        }
+
+        // ฟังก์ชันจัดการเมื่อกดปุ่มบันทึก
+        async function handleSaveButtonClick() {
+            const currentEOH = document.getElementById('currentEOH').value;
+            if(!currentEOH || currentEOH <= 0) {
+                alert("กรุณากรอกค่า EOH ก่อนบันทึก");
+                return;
+            }
+
+            if (confirm(`คุณแน่ใจหรือไม่ว่าต้องการบันทึกข้อมูลนี้ลงในระบบ?\n(Current EOH: ${currentEOH} Hrs)`)) {
+                await saveAndCalculate(true);
+            }
+        }
+
+        async function saveAndCalculate(shouldSaveToSheet = false) {
             const baseDateInput = document.getElementById('baseDate').value;
             const currentEOH = parseFloat(document.getElementById('currentEOH').value);
             const avgRate = parseFloat(document.getElementById('avgEOHPerDay').value);
@@ -493,8 +510,8 @@
             document.getElementById('timeline-bar').style.width = `${progressPercent}%`;
             document.getElementById('overall-progress-text').innerText = `Progress to 36k: ${progressPercent}%`;
 
-            const isClick = window.event && window.event.type === 'click' && window.event.target.id === 'btnSave';
-            if (isClick) {
+            // ส่วนของการบันทึกลงฐานข้อมูล (ทำงานเมื่อ shouldSaveToSheet เป็น true เท่านั้น)
+            if (shouldSaveToSheet) {
                 const btn = document.getElementById('btnSave');
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
                 btn.disabled = true;
@@ -538,16 +555,11 @@
                 } catch (e) {
                     alert("เชื่อมต่อ Google Sheets ผิดพลาด");
                 } finally {
-                    btn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i> บันทึกและพยากรณ์';
+                    btn.innerHTML = '<i class="fas fa-save mr-2"></i> บันทึกข้อมูล';
                     btn.disabled = false;
                 }
             }
         }
-
-        document.getElementById('currentEOH').addEventListener('input', saveAndCalculate);
-        document.getElementById('avgEOHPerDay').addEventListener('input', saveAndCalculate);
-        document.getElementById('allowancePercent').addEventListener('input', saveAndCalculate);
-        document.getElementById('baseDate').addEventListener('change', saveAndCalculate);
 
         window.onload = () => {
             restoreInputData();
