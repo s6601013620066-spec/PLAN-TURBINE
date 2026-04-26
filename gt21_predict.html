@@ -88,7 +88,7 @@
         </header>
 
         <div class="glass-card p-8 mb-8 shadow-2xl">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">วันที่บันทึกข้อมูล</label>
                     <input type="date" id="baseDate" class="input-field w-full p-3 rounded-xl">
@@ -100,6 +100,10 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Avg. EOH / Day</label>
                     <input type="number" id="avgEOHPerDay" value="24" class="input-field w-full p-3 rounded-xl">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-amber-400 uppercase mb-2">Downtime (%)</label>
+                    <input type="number" id="allowancePercent" value="3" step="0.1" class="input-field w-full p-3 rounded-xl border-amber-500/30 font-bold text-amber-400">
                 </div>
                 <div class="flex items-end">
                     <button onclick="saveAndCalculate()" id="btnSave" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg">
@@ -293,7 +297,8 @@
         function backupInputData() {
             const data = {
                 eoh: document.getElementById('currentEOH').value,
-                rate: document.getElementById('avgEOHPerDay').value
+                rate: document.getElementById('avgEOHPerDay').value,
+                allowance: document.getElementById('allowancePercent').value // สำรองค่า % ไว้ด้วย
             };
             localStorage.setItem('gt21_planner_backup', JSON.stringify(data));
         }
@@ -304,6 +309,7 @@
                 const data = JSON.parse(saved);
                 document.getElementById('currentEOH').value = data.eoh;
                 document.getElementById('avgEOHPerDay').value = data.rate;
+                if(data.allowance) document.getElementById('allowancePercent').value = data.allowance; // กู้คืนค่า %
                 saveAndCalculate();
             }
         }
@@ -379,12 +385,10 @@
             } catch (e) { console.log("Counter loading failed", e); }
         }
 
-        // ฟังก์ชันช่วยแปลงวันที่ภาษาไทยหน้าจอ เป็น YYYY-MM-DD ส่งเข้า Script
         function parseToISO(text, prefix) {
             const raw = text.replace(prefix, '').trim();
             const parts = raw.split('/');
             if (parts.length < 3) return "";
-            // ส่วนที่แสดงบนจอคือ d/m/y พลิกเป็น y-m-d
             return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
         }
 
@@ -392,6 +396,7 @@
             const baseDateInput = document.getElementById('baseDate').value;
             const currentEOH = parseFloat(document.getElementById('currentEOH').value);
             const avgRate = parseFloat(document.getElementById('avgEOHPerDay').value);
+            const allowance = parseFloat(document.getElementById('allowancePercent').value) || 0; // ดึงค่าเปอร์เซ็นต์
             const manualActualDateInput = document.getElementById('manualActualDate').value; 
             const offlineInfo = updateOfflineDays();
 
@@ -399,6 +404,9 @@
             if (currentEOH < 0) { alert("EOH ไม่สามารถติดลบได้"); return; }
             
             backupInputData();
+
+            // สูตรคำนวณ Effective Rate: หักลบ % Downtime ออกจากความเร็วการเดินเครื่อง
+            const effectiveRate = avgRate * (1 - (allowance / 100));
 
             const extraA1 = parseInt(document.getElementById('extra_typeA1').value) || 0;
             const extraB = parseInt(document.getElementById('extra_typeB').value) || 0;
@@ -421,7 +429,8 @@
 
             for (let item of schedule) {
                 if (currentEOH < item.limit) {
-                    let daysUntil = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total;
+                    // ใช้ effectiveRate ในการหาจำนวนวันที่จะถึงลิมิต EOH
+                    let daysUntil = Math.floor((item.limit - currentEOH) / effectiveRate) + offlineInfo.total;
                     firstPredictDate = new Date(baseDate);
                     firstPredictDate.setDate(baseDate.getDate() + daysUntil);
                     break;
@@ -460,8 +469,8 @@
                         foundNext = true;
                     }
 
-                    // 1. คำนวณวันรอคอย (Running Days)
-                    let runningDaysOnly = Math.floor((item.limit - currentEOH) / avgRate) + offlineInfo.total + dayOffset;
+                    // 1. คำนวณวันรอคอย (Running Days) โดยใช้ effectiveRate
+                    let runningDaysOnly = Math.floor((item.limit - currentEOH) / effectiveRate) + offlineInfo.total + dayOffset;
                     
                     // 2. คำนวณวันที่เริ่มจริง (ต้องบวกสะสมวันซ่อมของ Type ก่อนหน้า)
                     let startDate = new Date(baseDate);
@@ -470,14 +479,12 @@
                     const finishDate = new Date(startDate);
                     finishDate.setDate(startDate.getDate() + item.duration);
 
-                    // แสดงผลตัวเลข "--- วัน" บนการ์ด (อ้างอิงจากวันนี้)
                     const diffDaysToDisplay = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24));
                     
                     dayEl.innerText = `${diffDaysToDisplay.toLocaleString()} วัน`;
                     startEl.innerText = "เริ่ม: " + startDate.toLocaleDateString('th-TH');
                     finishEl.innerText = "เสร็จ: " + finishDate.toLocaleDateString('th-TH');
 
-                    // สะสมวันซ่อมไว้บวกให้ตัวถัดไป
                     maintenanceAccumulatedDays += item.duration;
 
                     if (diffDaysToDisplay <= 30 && diffDaysToDisplay > 0) {
@@ -502,6 +509,7 @@
                             recordDate: baseDateInput,
                             currentEOH: currentEOH,
                             avgRate: avgRate,
+                            allowance: allowance, // ส่งค่า % ไปยัง Script (ถ้า Script รองรับ)
                             offlineDays: offlineInfo.total,
                             offlineStart: offlineInfo.text,
                             dayOffset: dayOffset,
@@ -509,7 +517,6 @@
                             adjB:  schedule[1].duration,
                             adjA2: schedule[2].duration,
                             adjC:  schedule[3].duration,
-                            // ส่งข้อมูลวันที่ที่หน้าจอคำนวณสะสมเสร็จแล้วไปให้ Script
                             webDates: {
                                 "A1": { 
                                     start: parseToISO(document.getElementById('typeA1_start').innerText, 'เริ่ม:'),
@@ -543,6 +550,7 @@
 
         document.getElementById('currentEOH').addEventListener('input', saveAndCalculate);
         document.getElementById('avgEOHPerDay').addEventListener('input', saveAndCalculate);
+        document.getElementById('allowancePercent').addEventListener('input', saveAndCalculate); // ตรวจจับการเปลี่ยน %
         document.getElementById('baseDate').addEventListener('change', saveAndCalculate);
 
         window.onload = () => {
