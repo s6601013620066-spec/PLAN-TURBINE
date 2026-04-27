@@ -61,17 +61,6 @@
         }
         .urgent-warning { border-left: 4px solid #f43f5e !important; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-        
-        .api-status {
-            font-size: 0.65rem;
-            padding: 2px 8px;
-            border-radius: 100px;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .status-online { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
-        .status-offline { background: rgba(244, 63, 94, 0.1); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.2); }
     </style>
 </head>
 <body class="p-4 md:p-10">
@@ -79,12 +68,7 @@
     <div class="max-w-6xl mx-auto">
         <header class="mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
             <div class="text-center md:text-left">
-                <div class="flex items-center justify-center md:justify-start gap-3 mb-1">
-                    <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent uppercase">GT22 MAINTENANCE DATABASE</h1>
-                    <div id="api-indicator" class="api-status status-offline">
-                        <i class="fas fa-circle text-[6px]"></i> Checking System...
-                    </div>
-                </div>
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent uppercase">GT22 MAINTENANCE DATABASE</h1>
                 <p class="text-slate-400">ระบบบันทึกและพยากรณ์แผนซ่อมบำรุงเครื่อง GT22</p>
             </div>
             
@@ -122,8 +106,8 @@
                     <input type="number" id="allowancePercent" value="3" step="0.1" class="input-field w-full p-3 rounded-xl border-amber-500/30 font-bold text-amber-400" oninput="runCalculationOnly()">
                 </div>
                 <div class="flex items-end">
-                    <button onclick="handleSaveButtonClick()" id="btnSave" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2">
-                        <i class="fas fa-save"></i> <span>บันทึกข้อมูล</span>
+                    <button onclick="handleSaveButtonClick()" id="btnSave" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg">
+                        <i class="fas fa-save mr-2"></i> บันทึกข้อมูล
                     </button>
                 </div>
             </div>
@@ -310,21 +294,6 @@
         
         document.getElementById('baseDate').valueAsDate = new Date();
 
-        // 🟢 เพิ่มระบบตรวจสอบสถานะการเชื่อมต่อ (เหมือน GT21)
-        async function checkApiStatus() {
-            const indicator = document.getElementById('api-indicator');
-            try {
-                const res = await fetch(SCRIPT_URL);
-                if (res.ok) {
-                    indicator.innerHTML = '<i class="fas fa-check-circle"></i> GT22 System Connected';
-                    indicator.className = 'api-status status-online';
-                }
-            } catch (e) {
-                indicator.innerHTML = '<i class="fas fa-exclamation-triangle"></i> System Connection Error';
-                indicator.className = 'api-status status-offline';
-            }
-        }
-
         function updateInputLabels() {
             const eoh = parseFloat(document.getElementById('currentEOH').value) || 0;
             const config = [
@@ -348,20 +317,18 @@
             const data = {
                 eoh: document.getElementById('currentEOH').value,
                 rate: document.getElementById('avgEOHPerDay').value,
-                allowance: document.getElementById('allowancePercent').value,
-                baseDate: document.getElementById('baseDate').value
+                allowance: document.getElementById('allowancePercent').value
             };
-            localStorage.setItem('gt22_planner_backup_v2', JSON.stringify(data));
+            localStorage.setItem('gt22_planner_backup', JSON.stringify(data));
         }
 
         function restoreInputData() {
-            const saved = localStorage.getItem('gt22_planner_backup_v2');
+            const saved = localStorage.getItem('gt22_planner_backup');
             if (saved) {
                 const data = JSON.parse(saved);
                 document.getElementById('currentEOH').value = data.eoh;
                 document.getElementById('avgEOHPerDay').value = data.rate;
                 if(data.allowance) document.getElementById('allowancePercent').value = data.allowance;
-                if(data.baseDate) document.getElementById('baseDate').value = data.baseDate;
                 saveAndCalculate(false); 
             }
         }
@@ -428,6 +395,12 @@
                 if(data["B"] !== undefined) document.getElementById('set_B').innerText = `Next Set: ${data["B"] + 1}`;
                 if(data["A2"] !== undefined) document.getElementById('set_A2').innerText = `Next Set: ${data["A2"] + 1}`;
                 if(data["C"] !== undefined) document.getElementById('set_C').innerText = `Next Set: ${data["C"] + 1}`;
+                
+                // ดึงค่า EOH ล่าสุดมาแสดงด้วย (Logic เดียวกับ GT21)
+                if (data.latestEOH && !document.getElementById('currentEOH').value) {
+                    document.getElementById('currentEOH').value = data.latestEOH;
+                    runCalculationOnly();
+                }
             } catch (e) { console.log("Counter loading failed", e); }
         }
 
@@ -446,32 +419,12 @@
 
         async function handleSaveButtonClick() {
             const currentEOH = document.getElementById('currentEOH').value;
-            const btn = document.getElementById('btnSave');
-
             if(!currentEOH || currentEOH <= 0) {
                 alert("กรุณากรอกค่า EOH ก่อนบันทึก");
                 return;
             }
             if (confirm(`คุณแน่ใจหรือไม่ว่าต้องการบันทึกข้อมูล GT22?\n(Current EOH: ${currentEOH} Hrs)`)) {
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>กำลังบันทึก...</span>';
-                btn.classList.replace('bg-blue-600', 'bg-slate-600');
-                btn.disabled = true;
-
-                const success = await saveAndCalculate(true);
-                
-                if(success) {
-                    btn.innerHTML = '<i class="fas fa-check-circle"></i> <span>บันทึกสำเร็จ!</span>';
-                    btn.classList.replace('bg-slate-600', 'bg-emerald-600');
-                    setTimeout(() => {
-                        btn.innerHTML = '<i class="fas fa-save"></i> <span>บันทึกข้อมูล</span>';
-                        btn.classList.replace('bg-emerald-600', 'bg-blue-600');
-                        btn.disabled = false;
-                    }, 3000);
-                } else {
-                    btn.innerHTML = '<i class="fas fa-save"></i> <span>ลองอีกครั้ง</span>';
-                    btn.classList.replace('bg-slate-600', 'bg-red-600');
-                    btn.disabled = false;
-                }
+                await saveAndCalculate(true);
             }
         }
 
@@ -483,7 +436,7 @@
             const manualActualDateInput = document.getElementById('manualActualDate').value; 
             const offlineInfo = updateOfflineDays();
 
-            if (!baseDateInput || isNaN(currentEOH) || isNaN(avgRate) || avgRate <= 0) return false; 
+            if (!baseDateInput || isNaN(currentEOH) || isNaN(avgRate) || avgRate <= 0) return; 
             
             backupInputData();
 
@@ -521,7 +474,7 @@
                 dayOffset = Math.round((actualDate - firstPredictDate) / (1000 * 60 * 60 * 24));
                 if (dayOffset > 7) {
                     alert(`⚠️ ห้ามกำหนดวันซ่อมจริงเลทเกิน 7 วัน (ปัจจุบันเลท ${dayOffset} วัน)`);
-                    return false;
+                    return;
                 }
             }
 
@@ -574,8 +527,11 @@
             document.getElementById('overall-progress-text').innerText = `Progress to 36k: ${progressPercent}%`;
 
             if (shouldSaveToSheet) {
+                const btn = document.getElementById('btnSave');
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
+                btn.disabled = true;
                 try {
-                    const response = await fetch(SCRIPT_URL, {
+                    await fetch(SCRIPT_URL, {
                         method: 'POST',
                         body: JSON.stringify({
                             recordDate: baseDateInput,
@@ -606,26 +562,21 @@
                             }
                         })
                     });
-                    
-                    if(response.ok) {
-                        await fetchCounterInfo();
-                        return true;
-                    }
-                    return false;
+                    alert("บันทึกข้อมูล GT22 ลง Google Sheets เรียบร้อย!");
+                    fetchCounterInfo();
                 } catch (e) {
-                    alert("เชื่อมต่อ Google Sheets ผิดพลาด");
-                    return false;
+                    alert("เชื่อมต่อ Google Sheets ผิดพลาด กรุณาตรวจสอบการตั้งค่า Apps Script");
+                } finally {
+                    btn.innerHTML = '<i class="fas fa-save mr-2"></i> บันทึกข้อมูล';
+                    btn.disabled = false;
                 }
             }
-            return true;
         }
 
         window.onload = () => {
-            checkApiStatus();
             restoreInputData();
             fetchCounterInfo();
             updateInputLabels();
-            setInterval(checkApiStatus, 30000); // Check Every 30s
         };
     </script>
 </body>
