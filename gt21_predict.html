@@ -294,21 +294,24 @@
         
         document.getElementById('baseDate').valueAsDate = new Date();
 
-        // ฟังก์ชันใหม่: อัปเดต Label อัตโนมัติตาม EOH (Rolling Forecast UI)
+        // ฟังก์ชันแก้ไขใหม่: อัปเดต Label อัตโนมัติและนับจำนวนครั้งตาม EOH
         function updateInputLabels() {
             const eoh = parseFloat(document.getElementById('currentEOH').value) || 0;
             const config = [
-                { id: 'A1', limit: 9000,  label: 'lbl_extra_A1', color: 'text-emerald-400' },
-                { id: 'B',  limit: 18000, label: 'lbl_extra_B',  color: 'text-amber-400' },
-                { id: 'A2', limit: 27000, label: 'lbl_extra_A2', color: 'text-emerald-400' },
-                { id: 'C',  limit: 36000, label: 'lbl_extra_C',  color: 'text-red-400' }
+                { id: 'A1', limit: 9000,  label: 'lbl_extra_A1' },
+                { id: 'B',  limit: 18000, label: 'lbl_extra_B'  },
+                { id: 'A2', limit: 27000, label: 'lbl_extra_A2' },
+                { id: 'C',  limit: 36000, label: 'lbl_extra_C'  }
             ];
 
             config.forEach(item => {
                 const labelEl = document.getElementById(item.label);
+                // คำนวณว่าตอนนี้อยู่ในรอบที่เท่าไหร่ (เช่น 9000 ชม. คือ 1 รอบ)
+                // Math.floor(eoh / item.limit) จะบอกว่า "ทำเสร็จไปแล้วกี่รอบ" แล้วบวก 1 เพื่อเป็นรอบปัจจุบัน
+                let count = Math.floor(eoh / item.limit) + 1;
+                
                 if (eoh >= item.limit) {
-                    // ถ้า EOH เกินกำหนดของ Set 1 แล้ว ให้เปลี่ยนเป็น Set 2
-                    labelEl.innerHTML = `${item.id} (+วัน) <span class="text-blue-400">[ครั้งถัดไป: ครั้งที่ 2]</span>`;
+                    labelEl.innerHTML = `${item.id} (+วัน) <span class="text-blue-400 font-bold">[ครั้งที่ ${count}]</span>`;
                 } else {
                     labelEl.innerHTML = `${item.id} (+วัน) <span class="opacity-50">[ครั้งที่ 1]</span>`;
                 }
@@ -446,7 +449,6 @@
 
             const effectiveRate = avgRate * (1 - (allowance / 100));
             
-            // ดึงค่า adj จากช่องกรอกข้อมูล
             const adjA1 = parseInt(document.getElementById('extra_typeA1').value) || 0;
             const adjB  = parseInt(document.getElementById('extra_typeB').value) || 0;
             const adjA2 = parseInt(document.getElementById('extra_typeA2').value) || 0;
@@ -512,7 +514,6 @@
                     startDate.setDate(baseDate.getDate() + runningDaysOnly + maintenanceAccumulatedDays);
 
                     const finishDate = new Date(startDate);
-                    // ใช้ค่า std + adj ในการพยากรณ์หน้าเว็บ
                     finishDate.setDate(startDate.getDate() + (item.std + item.adj));
 
                     const diffDaysToDisplay = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24));
@@ -548,7 +549,6 @@
                             offlineDays: offlineInfo.total,
                             offlineStart: offlineInfo.text,
                             dayOffset: dayOffset,
-                            // ส่งเฉพาะค่า adj (ส่วนต่าง) ไปให้ Apps Script
                             adjA1: adjA1,
                             adjB:  adjB,
                             adjA2: adjA2,
@@ -587,7 +587,7 @@
         window.onload = () => {
             restoreInputData();
             fetchCounterInfo();
-            updateInputLabels(); // เช็ค Label ครั้งแรกเมื่อเปิดหน้าเว็บ
+            updateInputLabels();
         };
     </script>
 </body>
