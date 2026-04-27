@@ -265,20 +265,6 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="flex flex-col gap-4">
-                    <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700 flex items-center justify-between shadow-md">
-                        <span class="text-xs text-slate-500 uppercase font-bold">Standard Loop</span>
-                        <div class="flex items-center gap-2 text-sm font-bold">
-                            <span class="text-emerald-400">A1</span>
-                            <i class="fas fa-chevron-right text-[10px] text-slate-600"></i>
-                            <span class="text-amber-400">B</span>
-                            <i class="fas fa-chevron-right text-[10px] text-slate-600"></i>
-                            <span class="text-emerald-400">A2</span>
-                            <i class="fas fa-chevron-right text-[10px] text-slate-600"></i>
-                            <span class="text-red-400">C</span>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -289,18 +275,25 @@
         document.getElementById('baseDate').valueAsDate = new Date();
 
         function updateInputLabels() {
+            const eoh = parseFloat(document.getElementById('currentEOH').value) || 0;
             const config = [
-                { id: 'A1', labelId: 'lbl_extra_A1', setId: 'set_A1' },
-                { id: 'B',  labelId: 'lbl_extra_B',  setId: 'set_B'  },
-                { id: 'A2', labelId: 'lbl_extra_A2', setId: 'set_A2' },
-                { id: 'C',  labelId: 'lbl_extra_C',  setId: 'set_C'  }
+                { id: 'A1', labelId: 'lbl_extra_A1', setId: 'set_A1', limit: 9000 },
+                { id: 'B',  labelId: 'lbl_extra_B',  setId: 'set_B',  limit: 18000 },
+                { id: 'A2', labelId: 'lbl_extra_A2', setId: 'set_A2', limit: 27000 },
+                { id: 'C',  labelId: 'lbl_extra_C',  setId: 'set_C',  limit: 36000 }
             ];
 
             config.forEach(item => {
                 const labelEl = document.getElementById(item.labelId);
-                const setVal = document.getElementById(item.setId).innerText.replace('Next Set:', '').trim();
+                const setValText = document.getElementById(item.setId).innerText.replace('Next Set:', '').trim();
+                let setVal = parseInt(setValText) || 0;
                 
-                if (setVal && setVal !== '--') {
+                // หากค่า EOH เกินกำหนด (OVERDUE) ให้บวกเลขครั้งถัดไปเพิ่มอีก 1
+                if (eoh >= item.limit) {
+                    setVal += 1;
+                }
+
+                if (setVal > 0) {
                     labelEl.innerHTML = `${item.id} (+วัน) <span class="text-blue-400">[ครั้งที่ ${setVal}]</span>`;
                 } else {
                     labelEl.innerHTML = `${item.id} (+วัน) <span class="opacity-50">[ครั้งที่ --]</span>`;
