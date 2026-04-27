@@ -73,7 +73,7 @@
             </div>
             
             <div class="flex flex-wrap justify-center gap-3">
-                <a href="https://docs.google.com/spreadsheets/d/1-CjAYpVAM6KMzn4-jWBRwuuJUMI7rnEWuLRx01eAeJY/edit?pli=1&gid=0#gid=0" target="_blank" class="bg-amber-600/20 hover:bg-amber-600/40 text-amber-400 border border-amber-500/50 font-semibold py-2.5 px-6 rounded-xl transition-all flex items-center shadow-lg">
+                <a href="https://docs.google.com/spreadsheets/d/1-CjAYpVAM6KMzn4-jWBRwuuJUMI7rnEWuLRx01eAeJY/edit?pli=1&gid=0#gid=0" id="sheetLink" target="_blank" class="bg-amber-600/20 hover:bg-amber-600/40 text-amber-400 border border-amber-500/50 font-semibold py-2.5 px-6 rounded-xl transition-all flex items-center shadow-lg">
                     <i class="fas fa-table mr-2"></i> ตรวจสอบ Google Sheet
                 </a>
 
@@ -88,27 +88,25 @@
         </header>
 
         <div class="glass-card p-8 mb-8 shadow-2xl">
-            <div class="flex flex-col lg:flex-row gap-4 mb-6 items-end">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 flex-grow w-full">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">วันที่บันทึกข้อมูล</label>
-                        <input type="date" id="baseDate" class="input-field w-full p-3 rounded-xl" onchange="runCalculationOnly()">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Current EOH (Hrs)</label>
-                        <input type="number" id="currentEOH" placeholder="0.00" class="input-field w-full p-3 rounded-xl text-xl font-bold border-blue-500/30" oninput="runCalculationOnly()">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Avg. EOH / Day</label>
-                        <input type="number" id="avgEOHPerDay" value="24" class="input-field w-full p-3 rounded-xl" oninput="runCalculationOnly()">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-amber-400 uppercase mb-2">Downtime (%)</label>
-                        <input type="number" id="allowancePercent" value="3" step="0.1" class="input-field w-full p-3 rounded-xl border-amber-500/30 font-bold text-amber-400" oninput="runCalculationOnly()">
-                    </div>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">วันที่บันทึกข้อมูล</label>
+                    <input type="date" id="baseDate" class="input-field w-full p-3 rounded-xl" onchange="runCalculationOnly()">
                 </div>
-                <div class="w-full lg:w-auto">
-                    <button onclick="handleSaveButtonClick()" id="btnSave" class="w-full lg:w-56 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg flex items-center justify-center">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Current EOH (Hrs)</label>
+                    <input type="number" id="currentEOH" placeholder="0.00" class="input-field w-full p-3 rounded-xl text-xl font-bold border-blue-500/30" oninput="runCalculationOnly()">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Avg. EOH / Day</label>
+                    <input type="number" id="avgEOHPerDay" value="24" class="input-field w-full p-3 rounded-xl" oninput="runCalculationOnly()">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-amber-400 uppercase mb-2">Downtime (%)</label>
+                    <input type="number" id="allowancePercent" value="3" step="0.1" class="input-field w-full p-3 rounded-xl border-amber-500/30 font-bold text-amber-400" oninput="runCalculationOnly()">
+                </div>
+                <div class="flex items-end">
+                    <button onclick="handleSaveButtonClick()" id="btnSave" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg">
                         <i class="fas fa-save mr-2"></i> บันทึกข้อมูล
                     </button>
                 </div>
@@ -117,7 +115,7 @@
             <div class="mb-6 p-5 bg-blue-900/20 border border-blue-500/30 rounded-2xl">
                 <div class="flex items-center gap-3 mb-3">
                     <i class="fas fa-tools text-blue-400"></i>
-                    <h3 class="text-sm font-bold text-blue-300 uppercase tracking-wider">กำหนดวันซ่อมจริงที่ต้องการ (Optional)</h3>
+                    <h3 class="text-sm font-bold text-blue-300 uppercase tracking-wider">กำหนดวันซ่อมจริงที่ต้องการ (GT22 Optional)</h3>
                 </div>
                 <div class="flex flex-col md:flex-row items-center gap-4">
                     <div class="w-full md:w-1/3">
@@ -131,7 +129,7 @@
 
             <div class="pt-6 border-t border-slate-700/50">
                 <div class="flex justify-between items-center mb-4">
-                    <label class="block text-xs font-semibold text-slate-500 uppercase">ช่วงเวลาที่เครื่องหยุดทำงาน (OFFLINE PERIODS)</label>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase">ช่วงเวลาที่เครื่องหยุดทำงาน (Offline Periods)</label>
                     <button type="button" onclick="addOfflineRow()" class="text-xs bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 py-1.5 px-4 rounded-lg border border-blue-500/30 transition-all">
                         <i class="fas fa-plus mr-1"></i> เพิ่มช่วงวันหยุด
                     </button>
@@ -140,13 +138,13 @@
                 <div id="offline-container" class="space-y-3"></div>
 
                 <div id="offlineDisplay" class="mt-4 text-center text-sm font-medium text-slate-400 bg-slate-800/50 py-2 rounded-xl border border-slate-700/50">
-                    เลื่อนแผนออกไปรวม +0 วัน
+                    เครื่องหยุดทำงานรวม 0 วัน
                 </div>
             </div>
         </div>
 
         <div class="flex justify-between items-end mb-4">
-            <h2 class="text-lg font-semibold text-blue-400"><i class="fas fa-calendar-alt mr-2"></i>พยากรณ์รอบปัจจุบัน (Next Maintenance)</h2>
+            <h2 class="text-lg font-semibold text-blue-400"><i class="fas fa-calendar-alt mr-2"></i>พยากรณ์รอบปัจจุบัน (GT22 Next Maintenance)</h2>
             <div id="overall-progress-text" class="text-xs text-slate-500 font-medium">Progress to 36k: 0%</div>
         </div>
 
@@ -209,24 +207,24 @@
         <div class="glass-card p-5 mb-10 border border-slate-700/50">
             <div class="flex items-center gap-3 mb-4">
                 <i class="fas fa-clock text-blue-400"></i>
-                <h3 class="text-sm font-bold text-blue-300 uppercase tracking-wider">ปรับปรุงจำนวนวันซ่อม (MAINTENANCE DURATION)</h3>
+                <h3 class="text-sm font-bold text-blue-300 uppercase tracking-wider">ปรับปรุงจำนวนวันซ่อม (GT22 Maintenance Duration)</h3>
                 <span class="text-[10px] text-slate-500 italic">* ระบุจำนวนวันที่ต้องการบวกเพิ่มจากค่ามาตรฐาน</span>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                    <label class="block text-[10px] text-emerald-400 mb-1">A1 (+วัน)</label>
+                    <label id="lbl_extra_A1" class="block text-[10px] text-emerald-400 mb-1">A1 (+วัน)</label>
                     <input type="number" id="extra_typeA1" value="0" class="input-field w-full p-2 rounded-lg border-emerald-500/20" onchange="runCalculationOnly()">
                 </div>
                 <div>
-                    <label class="block text-[10px] text-amber-400 mb-1">B (+วัน)</label>
+                    <label id="lbl_extra_B" class="block text-[10px] text-amber-400 mb-1">B (+วัน)</label>
                     <input type="number" id="extra_typeB" value="0" class="input-field w-full p-2 rounded-lg border-amber-500/20" onchange="runCalculationOnly()">
                 </div>
                 <div>
-                    <label class="block text-[10px] text-emerald-400 mb-1">A2 (+วัน)</label>
+                    <label id="lbl_extra_A2" class="block text-[10px] text-emerald-400 mb-1">A2 (+วัน)</label>
                     <input type="number" id="extra_typeA2" value="0" class="input-field w-full p-2 rounded-lg border-emerald-500/20" onchange="runCalculationOnly()">
                 </div>
                 <div>
-                    <label class="block text-[10px] text-red-400 mb-1">C (+วัน)</label>
+                    <label id="lbl_extra_C" class="block text-[10px] text-red-400 mb-1">C (+วัน)</label>
                     <input type="number" id="extra_typeC" value="0" class="input-field w-full p-2 rounded-lg border-red-500/20" onchange="runCalculationOnly()">
                 </div>
             </div>
@@ -238,8 +236,8 @@
                     <i class="fas fa-info-circle text-xl"></i>
                 </div>
                 <div>
-                    <h3 class="text-lg font-bold text-blue-300 uppercase tracking-wide">หมายเหตุการพยากรณ์ GT22</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">การซ่อมบำรุงยึดตามลูปมาตรฐาน <span class="text-emerald-400 font-semibold px-1">A1 → B → A2 → C</span> เช่นเดียวกับเครื่อง GT21</p>
+                    <h3 class="text-lg font-bold text-blue-300 uppercase tracking-wide">หมายเหตุการพยากรณ์ (GT22)</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">A1 และ A2 คือการซ่อมบำรุงประเภท A ตัวเดียวกัน แต่แบ่งแยกเพื่อให้ดูและอ่านได้ง่ายยิ่งยิ่งขึ้น เพื่อให้มองในรูปแบบ <span class="text-emerald-400 font-semibold px-1">Loop คือ A1 → B → A2 → C</span></p>
                 </div>
             </div>
 
@@ -260,6 +258,14 @@
                             <tr class="hover:bg-slate-800/50 transition-colors">
                                 <td class="px-4 py-2 border-r border-slate-700/50 font-semibold text-emerald-400">A2 ( 1 )</td>
                                 <td class="px-4 py-2">A ( 2 )</td>
+                            </tr>
+                            <tr class="bg-emerald-500/5 hover:bg-emerald-500/10 transition-colors">
+                                <td class="px-4 py-2 border-r border-slate-700/50 font-semibold text-emerald-400">A1 ( 2 )</td>
+                                <td class="px-4 py-2">A ( 3 )</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/50 transition-colors">
+                                <td class="px-4 py-2 border-r border-slate-700/50 font-semibold text-emerald-400">A2 ( 2 )</td>
+                                <td class="px-4 py-2">A ( 4 )</td>
                             </tr>
                         </tbody>
                     </table>
@@ -284,9 +290,29 @@
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxGgE4HImxXkcQtOr5TSkN607U6hhEn7bjb0Y_fgxVLkleKiG2lxcpUSGYaNvdZIKg/exec';
+        // ลิงก์ Apps Script สำหรับ GT22 ที่คุณให้มา
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXW3HDkqFDu77Q8yya3zvZC7FosZbLMgFWBxdb3c9_dpdTcxA2KfHdQj1K5Hv75-iz/exec';
         
         document.getElementById('baseDate').valueAsDate = new Date();
+
+        function updateInputLabels() {
+            const eoh = parseFloat(document.getElementById('currentEOH').value) || 0;
+            const config = [
+                { id: 'A1', limit: 9000,  label: 'lbl_extra_A1' },
+                { id: 'B',  limit: 18000, label: 'lbl_extra_B'  },
+                { id: 'A2', limit: 27000, label: 'lbl_extra_A2' },
+                { id: 'C',  limit: 36000, label: 'lbl_extra_C'  }
+            ];
+
+            config.forEach(item => {
+                const labelEl = document.getElementById(item.label);
+                if (eoh >= item.limit) {
+                    labelEl.innerHTML = `${item.id} (+วัน) <span class="text-blue-400">[ครั้งถัดไป]</span>`;
+                } else {
+                    labelEl.innerHTML = `${item.id} (+วัน) <span class="opacity-50">[ครั้งที่ 1]</span>`;
+                }
+            });
+        }
 
         function backupInputData() {
             const data = {
@@ -340,12 +366,6 @@
             let totalDays = 0;
             let summary = [];
 
-            const formatDate = (dateStr) => {
-                if (!dateStr) return "";
-                const [y, m, d] = dateStr.split('-');
-                return `${d}/${m}/${y}`;
-            };
-
             starts.forEach((el, i) => {
                 const startVal = el.value;
                 const endVal = ends[i].value;
@@ -354,7 +374,7 @@
                     if (diff >= 0) {
                         displays[i].innerText = `หยุด ${diff} วัน`;
                         totalDays += diff;
-                        summary.push(`${formatDate(startVal)}-${formatDate(endVal)}`);
+                        summary.push(`${startVal}_${endVal}`);
                     }
                 } else {
                     displays[i].innerText = "รอระบุวันที่";
@@ -388,6 +408,7 @@
         }
 
         function runCalculationOnly() {
+            updateInputLabels();
             saveAndCalculate(false);
         }
 
@@ -397,8 +418,7 @@
                 alert("กรุณากรอกค่า EOH ก่อนบันทึก");
                 return;
             }
-
-            if (confirm(`คุณแน่ใจหรือไม่ว่าต้องการบันทึกข้อมูล GT22 ลงในระบบ?\n(Current EOH: ${currentEOH} Hrs)`)) {
+            if (confirm(`คุณแน่ใจหรือไม่ว่าต้องการบันทึกข้อมูล GT22?\n(Current EOH: ${currentEOH} Hrs)`)) {
                 await saveAndCalculate(true);
             }
         }
@@ -416,16 +436,16 @@
             backupInputData();
 
             const effectiveRate = avgRate * (1 - (allowance / 100));
-            const extraA1 = parseInt(document.getElementById('extra_typeA1').value) || 0;
-            const extraB = parseInt(document.getElementById('extra_typeB').value) || 0;
-            const extraA2 = parseInt(document.getElementById('extra_typeA2').value) || 0;
-            const extraC = parseInt(document.getElementById('extra_typeC').value) || 0;
+            const adjA1 = parseInt(document.getElementById('extra_typeA1').value) || 0;
+            const adjB  = parseInt(document.getElementById('extra_typeB').value) || 0;
+            const adjA2 = parseInt(document.getElementById('extra_typeA2').value) || 0;
+            const adjC  = parseInt(document.getElementById('extra_typeC').value) || 0;
 
             const schedule = [
-                { id: 'typeA1', limit: 9000, duration: 8 + extraA1 },
-                { id: 'typeB', limit: 18000, duration: 9 + extraB },
-                { id: 'typeA2', limit: 27000, duration: 8 + extraA2 },
-                { id: 'typeC', limit: 36000, duration: 37 + extraC }
+                { id: 'typeA1', limit: 9000,  std: 8,  adj: adjA1 },
+                { id: 'typeB',  limit: 18000, std: 9,  adj: adjB  },
+                { id: 'typeA2', limit: 27000, std: 8,  adj: adjA2 },
+                { id: 'typeC',  limit: 36000, std: 37, adj: adjC  }
             ];
 
             const baseDate = new Date(baseDateInput);
@@ -481,7 +501,7 @@
                     startDate.setDate(baseDate.getDate() + runningDaysOnly + maintenanceAccumulatedDays);
 
                     const finishDate = new Date(startDate);
-                    finishDate.setDate(startDate.getDate() + item.duration);
+                    finishDate.setDate(startDate.getDate() + (item.std + item.adj));
 
                     const diffDaysToDisplay = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24));
                     
@@ -489,7 +509,7 @@
                     startEl.innerText = "เริ่ม: " + startDate.toLocaleDateString('th-TH');
                     finishEl.innerText = "เสร็จ: " + finishDate.toLocaleDateString('th-TH');
 
-                    maintenanceAccumulatedDays += item.duration;
+                    maintenanceAccumulatedDays += (item.std + item.adj);
 
                     if (diffDaysToDisplay <= 30 && diffDaysToDisplay > 0) {
                         cardEl.classList.add('urgent-warning');
@@ -516,10 +536,7 @@
                             offlineDays: offlineInfo.total,
                             offlineStart: offlineInfo.text,
                             dayOffset: dayOffset,
-                            adjA1: schedule[0].duration,
-                            adjB:  schedule[1].duration,
-                            adjA2: schedule[2].duration,
-                            adjC:  schedule[3].duration,
+                            adjA1: adjA1, adjB: adjB, adjA2: adjA2, adjC: adjC,
                             webDates: {
                                 "A1": { 
                                     start: parseToISO(document.getElementById('typeA1_start').innerText, 'เริ่ม:'),
@@ -540,12 +557,12 @@
                             }
                         })
                     });
-                    alert("บันทึกข้อมูล GT22 เรียบร้อย!");
+                    alert("บันทึกข้อมูล GT22 ลง Google Sheets เรียบร้อย!");
                     fetchCounterInfo();
                 } catch (e) {
-                    alert("เชื่อมต่อ Google Sheets ผิดพลาด");
+                    alert("เชื่อมต่อ Google Sheets ผิดพลาด กรุณาตรวจสอบการตั้งค่า Apps Script");
                 } finally {
-                    btn.innerHTML = '<i class="fas fa-save mr-2"></i> บันทึกและพยากรณ์';
+                    btn.innerHTML = '<i class="fas fa-save mr-2"></i> บันทึกข้อมูล';
                     btn.disabled = false;
                 }
             }
@@ -554,6 +571,7 @@
         window.onload = () => {
             restoreInputData();
             fetchCounterInfo();
+            updateInputLabels();
         };
     </script>
 </body>
