@@ -76,11 +76,9 @@
                 <a href="https://docs.google.com/spreadsheets/d/1-CjAYpVAM6KMzn4-jWBRwuuJUMI7rnEWuLRx01eAeJY/edit?pli=1&gid=0#gid=0" id="sheetLink" target="_blank" class="bg-amber-600/20 hover:bg-amber-600/40 text-amber-400 border border-amber-500/50 font-semibold py-2.5 px-6 rounded-xl transition-all flex items-center shadow-lg">
                     <i class="fas fa-table mr-2"></i> ตรวจสอบ Google Sheet
                 </a>
-
                 <button onclick="window.location.href='gt22_report.html'" class="bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/50 font-semibold py-2.5 px-6 rounded-xl transition-all flex items-center shadow-lg">
                     <i class="fas fa-clipboard-list mr-2"></i> รายงานการซ่อมบำรุง
                 </button>
-
                 <button onclick="window.location.href='index.html'" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 px-6 rounded-xl transition-all border border-slate-700 flex items-center">
                     <i class="fas fa-home mr-2"></i> หน้าหลัก (Portal)
                 </button>
@@ -134,9 +132,7 @@
                         <i class="fas fa-plus mr-1"></i> เพิ่มช่วงวันหยุด
                     </button>
                 </div>
-                
                 <div id="offline-container" class="space-y-3"></div>
-
                 <div id="offlineDisplay" class="mt-4 text-center text-sm font-medium text-slate-400 bg-slate-800/50 py-2 rounded-xl border border-slate-700/50">
                     เครื่องหยุดทำงานรวม 0 วัน
                 </div>
@@ -240,7 +236,6 @@
                     <p class="text-sm text-slate-400 leading-relaxed">A1 และ A2 คือการซ่อมบำรุงประเภท A ตัวเดียวกัน แต่แบ่งแยกเพื่อให้ดูและอ่านได้ง่ายยิ่งยิ่งขึ้น เพื่อให้มองในรูปแบบ <span class="text-emerald-400 font-semibold px-1">Loop คือ A1 → B → A2 → C</span></p>
                 </div>
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                 <div class="overflow-hidden rounded-xl border border-slate-700/50 shadow-lg">
                     <table class="w-full text-center text-sm info-table">
@@ -270,7 +265,6 @@
                         </tbody>
                     </table>
                 </div>
-
                 <div class="flex flex-col gap-4">
                     <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700 flex items-center justify-between shadow-md">
                         <span class="text-xs text-slate-500 uppercase font-bold">Standard Loop</span>
@@ -295,20 +289,21 @@
         document.getElementById('baseDate').valueAsDate = new Date();
 
         function updateInputLabels() {
-            const eoh = parseFloat(document.getElementById('currentEOH').value) || 0;
             const config = [
-                { id: 'A1', limit: 9000,  label: 'lbl_extra_A1' },
-                { id: 'B',  limit: 18000, label: 'lbl_extra_B'  },
-                { id: 'A2', limit: 27000, label: 'lbl_extra_A2' },
-                { id: 'C',  limit: 36000, label: 'lbl_extra_C'  }
+                { id: 'A1', labelId: 'lbl_extra_A1', setId: 'set_A1' },
+                { id: 'B',  labelId: 'lbl_extra_B',  setId: 'set_B'  },
+                { id: 'A2', labelId: 'lbl_extra_A2', setId: 'set_A2' },
+                { id: 'C',  labelId: 'lbl_extra_C',  setId: 'set_C'  }
             ];
 
             config.forEach(item => {
-                const labelEl = document.getElementById(item.label);
-                if (eoh >= item.limit) {
-                    labelEl.innerHTML = `${item.id} (+วัน) <span class="text-blue-400">[ครั้งถัดไป]</span>`;
+                const labelEl = document.getElementById(item.labelId);
+                const setVal = document.getElementById(item.setId).innerText.replace('Next Set:', '').trim();
+                
+                if (setVal && setVal !== '--') {
+                    labelEl.innerHTML = `${item.id} (+วัน) <span class="text-blue-400">[ครั้งที่ ${setVal}]</span>`;
                 } else {
-                    labelEl.innerHTML = `${item.id} (+วัน) <span class="opacity-50">[ครั้งที่ 1]</span>`;
+                    labelEl.innerHTML = `${item.id} (+วัน) <span class="opacity-50">[ครั้งที่ --]</span>`;
                 }
             });
         }
@@ -383,7 +378,6 @@
             const totalDisplay = document.getElementById('offlineDisplay');
             totalDisplay.innerText = `เลื่อนแผนออกไปรวม +${totalDays} วัน`;
             totalDisplay.className = totalDays > 0 ? "mt-4 text-center text-sm font-bold text-amber-400 bg-slate-800/50 py-2 rounded-xl border border-slate-700/50" : "mt-4 text-center text-sm font-medium text-slate-400 bg-slate-800/50 py-2 rounded-xl border border-slate-700/50";
-            
             return { total: totalDays, text: summary.join(', ') };
         }
 
@@ -396,11 +390,10 @@
                 if(data["A2"] !== undefined) document.getElementById('set_A2').innerText = `Next Set: ${data["A2"] + 1}`;
                 if(data["C"] !== undefined) document.getElementById('set_C').innerText = `Next Set: ${data["C"] + 1}`;
                 
-                // ดึงค่า EOH ล่าสุดมาแสดงด้วย (Logic เดียวกับ GT21)
                 if (data.latestEOH && !document.getElementById('currentEOH').value) {
                     document.getElementById('currentEOH').value = data.latestEOH;
-                    runCalculationOnly();
                 }
+                runCalculationOnly(); 
             } catch (e) { console.log("Counter loading failed", e); }
         }
 
@@ -413,8 +406,8 @@
         }
 
         function runCalculationOnly() {
-            updateInputLabels();
             saveAndCalculate(false);
+            updateInputLabels();
         }
 
         async function handleSaveButtonClick() {
@@ -563,7 +556,7 @@
                         })
                     });
                     alert("บันทึกข้อมูล GT22 ลง Google Sheets เรียบร้อย!");
-                    fetchCounterInfo();
+                    await fetchCounterInfo();
                 } catch (e) {
                     alert("เชื่อมต่อ Google Sheets ผิดพลาด กรุณาตรวจสอบการตั้งค่า Apps Script");
                 } finally {
@@ -576,7 +569,6 @@
         window.onload = () => {
             restoreInputData();
             fetchCounterInfo();
-            updateInputLabels();
         };
     </script>
 </body>
