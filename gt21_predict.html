@@ -294,27 +294,22 @@
         
         document.getElementById('baseDate').valueAsDate = new Date();
 
+        // แก้ไขให้ดึงค่าตรงๆ จาก Next Set โดยไม่บวกเพิ่ม
         function updateInputLabels() {
             const config = [
-                { id: 'A1', label: 'lbl_extra_A1', set: 'set_A1', daysId: 'typeA1_days' },
-                { id: 'B',  label: 'lbl_extra_B',  set: 'set_B',  daysId: 'typeB_days'  },
-                { id: 'A2', label: 'lbl_extra_A2', set: 'set_A2', daysId: 'typeA2_days' },
-                { id: 'C',  label: 'lbl_extra_C',  set: 'set_C',  daysId: 'typeC_days'  }
+                { id: 'A1', label: 'lbl_extra_A1', set: 'set_A1' },
+                { id: 'B',  label: 'lbl_extra_B',  set: 'set_B'  },
+                { id: 'A2', label: 'lbl_extra_A2', set: 'set_A2' },
+                { id: 'C',  label: 'lbl_extra_C',  set: 'set_C'  }
             ];
 
             config.forEach(item => {
                 const labelEl = document.getElementById(item.label);
                 const setEl = document.getElementById(item.set);
-                const daysEl = document.getElementById(item.daysId);
                 
-                // ดึงค่าตัวเลขจาก "Next Set: X"
+                // ดึงค่าตัวเลขจาก "Next Set: X" มาแสดงใน Label ทันที
                 let countStr = setEl.innerText.replace('Next Set:', '').trim();
                 let count = parseInt(countStr) || 1;
-
-                // หากสถานะเป็นการ์ดคือ OVERDUE ให้บวกเพิ่มอีก 1 รอบ
-                if (daysEl && daysEl.innerText === "OVERDUE") {
-                    count = count + 1;
-                }
 
                 labelEl.innerHTML = `${item.id} (+วัน) <span class="text-blue-400 font-bold">[ครั้งที่ ${count}]</span>`;
             });
@@ -409,7 +404,6 @@
                 if(data["A2"] !== undefined) document.getElementById('set_A2').innerText = `Next Set: ${data["A2"] + 1}`;
                 if(data["C"] !== undefined) document.getElementById('set_C').innerText = `Next Set: ${data["C"] + 1}`;
                 
-                // อัปเดต Label ทันทีหลังจากดึงข้อมูลรอบจาก Sheet มาแล้ว
                 updateInputLabels();
             } catch (e) { console.log("Counter loading failed", e); }
         }
@@ -424,7 +418,6 @@
 
         function runCalculationOnly() {
             saveAndCalculate(false);
-            // เรียก updateInputLabels หลังการคำนวณเผื่อกรณีสถานะเปลี่ยนเป็น OVERDUE
             updateInputLabels();
         }
 
