@@ -275,12 +275,11 @@
         document.getElementById('baseDate').valueAsDate = new Date();
 
         function updateInputLabels() {
-            const eoh = parseFloat(document.getElementById('currentEOH').value) || 0;
             const config = [
-                { id: 'A1', labelId: 'lbl_extra_A1', setId: 'set_A1', limit: 9000 },
-                { id: 'B',  labelId: 'lbl_extra_B',  setId: 'set_B',  limit: 18000 },
-                { id: 'A2', labelId: 'lbl_extra_A2', setId: 'set_A2', limit: 27000 },
-                { id: 'C',  labelId: 'lbl_extra_C',  setId: 'set_C',  limit: 36000 }
+                { id: 'A1', labelId: 'lbl_extra_A1', setId: 'set_A1' },
+                { id: 'B',  labelId: 'lbl_extra_B',  setId: 'set_B'  },
+                { id: 'A2', labelId: 'lbl_extra_A2', setId: 'set_A2' },
+                { id: 'C',  labelId: 'lbl_extra_C',  setId: 'set_C'  }
             ];
 
             config.forEach(item => {
@@ -288,11 +287,7 @@
                 const setValText = document.getElementById(item.setId).innerText.replace('Next Set:', '').trim();
                 let setVal = parseInt(setValText) || 0;
                 
-                // หากค่า EOH เกินกำหนด (OVERDUE) ให้บวกเลขครั้งถัดไปเพิ่มอีก 1
-                if (eoh >= item.limit) {
-                    setVal += 1;
-                }
-
+                // แก้ไข: ดึงค่าจาก Next Set มาแสดงโดยตรง ไม่มีการเช็ค EOH ซ้ำซ้อน
                 if (setVal > 0) {
                     labelEl.innerHTML = `${item.id} (+วัน) <span class="text-blue-400">[ครั้งที่ ${setVal}]</span>`;
                 } else {
