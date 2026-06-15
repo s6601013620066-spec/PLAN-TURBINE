@@ -290,11 +290,16 @@
     </div>
 
     <script>
+        // URL ของ Google Apps Script Web App สำหรับเชื่อมต่อฐานข้อมูล Google Sheets
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby8CN8DE_Dw0aZpDvE_j021rd5H_uB8NWtFvOwwuF8AE2kKYw1SdIUTdWakcZ8S9Ts/exec';
-        
+        // กำหนดค่าเริ่มต้นให้กับช่อง "วันที่บันทึกข้อมูล" เป็นวันที่ปัจจุบันของคอมพิวเตอร์ผู้ใช้งาน
         document.getElementById('baseDate').valueAsDate = new Date();
 
-        // แก้ไขให้ดึงค่าตรงๆ จาก Next Set โดยไม่บวกเพิ่ม
+        /**
+         * ฟังก์ชัน: updateInputLabels
+         * หน้าที่: ดึงจำนวนรอบการซ่อม (Next Set) จากข้อมูลปัจจุบันมาแสดงผลบนป้ายข้อความ (Labels) 
+         * เพื่อให้ผู้ใช้ทราบว่าเป็นรอบซ่อมบำรุงครั้งที่เท่าไหร่ของแต่ละประเภท (A1, B, A2, C)
+         */
         function updateInputLabels() {
             const config = [
                 { id: 'A1', label: 'lbl_extra_A1', set: 'set_A1' },
@@ -302,7 +307,7 @@
                 { id: 'A2', label: 'lbl_extra_A2', set: 'set_A2' },
                 { id: 'C',  label: 'lbl_extra_C',  set: 'set_C'  }
             ];
-
+// วนลูปการตั้งค่าเพื่อดึงข้อความรอบซ่อมมาอัปเดตลงในป้ายชื่อ Input ของแต่ละประเภท
             config.forEach(item => {
                 const labelEl = document.getElementById(item.label);
                 const setEl = document.getElementById(item.set);
@@ -314,7 +319,11 @@
                 labelEl.innerHTML = `${item.id} (+วัน) <span class="text-blue-400 font-bold">[ครั้งที่ ${count}]</span>`;
             });
         }
-
+/**
+         * ฟังก์ชัน: backupInputData
+         * หน้าที่: ทำการสำรองข้อมูล (Backup) ค่าที่ผู้ใช้กรอกล่าสุด ได้แก่ EOH, Rate, และ Allowance 
+         * เก็บไว้ใน LocalStorage ของ Web Browser เพื่อป้องกันข้อมูลหายเมื่อรีเฟรชหน้าเว็บ
+         */
         function backupInputData() {
             const data = {
                 eoh: document.getElementById('currentEOH').value,
@@ -323,7 +332,10 @@
             };
             localStorage.setItem('gt21_planner_backup', JSON.stringify(data));
         }
-
+/**
+         * ฟังก์ชัน: restoreInputData
+         * หน้าที่: ดึงข้อมูลที่เคยสำรองไว้ใน LocalStorage กลับมาแสดงในช่องกรอกข้อมูลโดยอัตโนมัติเมื่อเปิดหน้าเว็บ
+         */
         function restoreInputData() {
             const saved = localStorage.getItem('gt21_planner_backup');
             if (saved) {
@@ -334,7 +346,11 @@
                 saveAndCalculate(false); 
             }
         }
-
+/**
+         * ฟังก์ชัน: addOfflineRow
+         * หน้าที่: เพิ่มแถวกรอกข้อมูลสำหรับช่วงเวลาที่เครื่องหยุดทำงาน (Offline Period) 
+         * โดยจะสร้างช่องอินพุตวันที่เริ่มต้นและสิ้นสุดเพิ่มขึ้นมาในหน้าเว็บแบบ Dynamic
+         */
         function addOfflineRow() {
             const container = document.getElementById('offline-container');
             const newRow = document.createElement('div');
@@ -359,7 +375,11 @@
             `;
             container.appendChild(newRow);
         }
-
+/**
+         * ฟังก์ชัน: updateOfflineDays
+         * หน้าที่: คำนวณหาจำนวนวันหยุดรวมทั้งหมดจากทุกแถวที่ผู้ใช้เพิ่มขึ้นมา 
+         * และจัดฟอร์แมตข้อความช่วงวันหยุดเพื่อแสดงบนหน้าเว็บและเตรียมส่งไปบันทึก
+         */
         function updateOfflineDays() {
             const starts = document.querySelectorAll('.offline-start');
             const ends = document.querySelectorAll('.offline-end');
@@ -372,7 +392,7 @@
                 const [y, m, d] = dateStr.split('-');
                 return `${d}/${m}/${y}`;
             };
-
+// วนลูปคำนวณส่วนต่างของวันหยุดในแต่ละแถว (เริ่มหยุด - สิ้นสุด)
             starts.forEach((el, i) => {
                 const startVal = el.value;
                 const endVal = ends[i].value;
@@ -394,7 +414,11 @@
             
             return { total: totalDays, text: summary.join(', ') };
         }
-
+/**
+         * ฟังก์ชัน: fetchCounterInfo
+         * หน้าที่: ดึงข้อมูลลำดับรอบการซ่อมบำรุงล่าสุดจาก Google Sheets (ผ่าน API GET method) 
+         * เพื่อเอามาอัปเดตค่า "Next Set" ของแต่ละการซ่อมบำรุงให้เป็นปัจจุบัน
+         */
         async function fetchCounterInfo() {
             try {
                 const response = await fetch(SCRIPT_URL);
@@ -407,7 +431,11 @@
                 updateInputLabels();
             } catch (e) { console.log("Counter loading failed", e); }
         }
-
+/**
+         * ฟังก์ชัน: parseToISO
+         * หน้าที่: ตัดคำนำหน้า (เช่น คำว่า 'เริ่ม:' หรือ 'เสร็จ:') ออกจากข้อความวันที่บนหน้าเว็บ 
+         * แล้วแปลงฟอร์แมตวันที่จาก DD/MM/YYYY ให้กลับเป็นฟอร์แมตมาตรฐานสากล YYYY-MM-DD
+         */
         function parseToISO(text, prefix) {
             const raw = text.replace(prefix, '').trim();
             if (!raw || raw === "-") return "";
@@ -415,12 +443,20 @@
             if (parts.length < 3) return "";
             return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
         }
-
+/**
+         * ฟังก์ชัน: runCalculationOnly
+         * หน้าที่: เรียกกระบวนการคำนวณและอัปเดตป้ายข้อความใหม่ทันทีเมื่อมีการเปลี่ยนแปลงข้อมูลบนหน้าเว็บ 
+         * (ทำงานเฉพาะฝั่งหน้าจอ ไม่มีการส่งค่าไปบันทึกลงฐานข้อมูล)
+         */
         function runCalculationOnly() {
             saveAndCalculate(false);
             updateInputLabels();
         }
-
+/**
+         * ฟังก์ชัน: handleSaveButtonClick
+         * หน้าที่: ตรวจสอบความถูกต้องของค่า EOH ก่อนการบันทึกข้อมูล พร้อมแสดงกล่องแจ้งเตือน (Confirmation Dialog) 
+         * เพื่อให้ผู้ใช้ยืนยันความแน่ใจก่อนจะยิงข้อมูลไปบันทึกลงระบบ Google Sheets
+         */
         async function handleSaveButtonClick() {
             const currentEOH = document.getElementById('currentEOH').value;
             if(!currentEOH || currentEOH <= 0) {
@@ -432,7 +468,12 @@
                 await saveAndCalculate(true);
             }
         }
-
+/**
+         * ฟังก์ชัน: saveAndCalculate
+         * หน้าที่: เป็นฟังก์ชันแกนหลัก (Core Engine) ของระบบ ทำหน้าที่ประมวลผลคำนวณพยากรณ์แผนวันซ่อมบำรุงทั้งหมด 
+         * ตามค่า EOH, อัตราเฉลี่ย, ค่าเผื่อการหยุดทำงาน, วันซ่อมแมนนวล และช่วงเวลาออฟไลน์ 
+         * และทำหน้าที่ยิงข้อมูลไปบันทึกลง Google Sheets หากมีการกำหนดพารามิเตอร์ส่งค่าเป็น true
+         */
         async function saveAndCalculate(shouldSaveToSheet = false) {
             const baseDateInput = document.getElementById('baseDate').value;
             const currentEOH = parseFloat(document.getElementById('currentEOH').value);
@@ -440,19 +481,19 @@
             const allowance = parseFloat(document.getElementById('allowancePercent').value) || 0;
             const manualActualDateInput = document.getElementById('manualActualDate').value; 
             const offlineInfo = updateOfflineDays();
-
+// ตรวจสอบเงื่อนไขข้อมูลเบื้องต้น หากไม่ถูกต้องตามเกณฑ์ให้หยุดการทำงานทันที
             if (!baseDateInput || isNaN(currentEOH) || isNaN(avgRate) || avgRate <= 0) return; 
             if (currentEOH < 0) { alert("EOH ไม่สามารถติดลบได้"); return; }
             
             backupInputData();
-
+// คำนวณหาอัตราการเดินเครื่องที่แท้จริงหลังจากหักค่า Downtime (%) ออกแล้ว
             const effectiveRate = avgRate * (1 - (allowance / 100));
             
             const adjA1 = parseInt(document.getElementById('extra_typeA1').value) || 0;
             const adjB  = parseInt(document.getElementById('extra_typeB').value) || 0;
             const adjA2 = parseInt(document.getElementById('extra_typeA2').value) || 0;
             const adjC  = parseInt(document.getElementById('extra_typeC').value) || 0;
-
+// โครงสร้างอาร์เรย์มาตรฐานสำหรับกำหนดขีดจำกัดชั่วโมง (EOH Limit) และจำนวนวันหยุดซ่อมมาตรฐาน (std) ของรอบแต่ละประเภท
             const schedule = [
                 { id: 'typeA1', limit: 9000,  std: 8,  adj: adjA1 },
                 { id: 'typeB',  limit: 18000, std: 9,  adj: adjB  },
@@ -466,7 +507,7 @@
 
             let dayOffset = 0; 
             let firstPredictDate = null;
-
+// วนลูปค้นหารอบการซ่อมบำรุงประเภทแรกที่กำลังจะมาถึง เพื่อใช้เป็นฐานคำนวณวันพยากรณ์เริ่มต้น
             for (let item of schedule) {
                 if (currentEOH < item.limit) {
                     let daysUntil = Math.floor((item.limit - currentEOH) / effectiveRate) + offlineInfo.total;
@@ -475,7 +516,7 @@
                     break;
                 }
             }
-
+// ตรวจสอบและคำนวณระยะห่าง (Offset) ในกรณีที่มีการกำหนด "วันซ่อมจริงที่ต้องการ (Manual)"
             if (manualActualDateInput && firstPredictDate) {
                 const actualDate = new Date(manualActualDateInput);
                 dayOffset = Math.round((actualDate - firstPredictDate) / (1000 * 60 * 60 * 24));
@@ -487,7 +528,7 @@
 
             let maintenanceAccumulatedDays = 0;
             let foundNext = false;
-
+//วนลูปเพื่อแสดงผลลัพธ์บนการ์ดแต่ละประเภท
             schedule.forEach((item) => {
                 const cardEl = document.getElementById(`card_${item.id}`);
                 const dayEl = document.getElementById(`${item.id}_days`);
@@ -496,48 +537,48 @@
 
                 cardEl.classList.remove('active-card', 'urgent-warning');
                 cardEl.style.opacity = "1";
-
+// กรณีที่ EOH ปัจจุบันเกินขีดจำกัดของประเภทนั้นๆ ไปแล้ว (OVERDUE)
                 if (currentEOH >= item.limit) {
                     dayEl.innerText = "OVERDUE";
                     startEl.innerText = "ผ่านมาแล้ว";
                     finishEl.innerText = "-";
                     cardEl.style.opacity = "0.5";
-                } else {
+                } else {// กำหนดสถานะ Active ให้กับการ์ดแผนซ่อมบำรุงถัดไปที่กำลังจะมาถึงเป็นอันดับแรก
                     if (!foundNext) {
                         cardEl.classList.add('active-card');
                         foundNext = true;
                     }
-
+// คำนวณจำนวนวันวิ่งเครื่องจนกว่าจะถึงกำหนด (รวมวันหยุด Offline และระยะเลื่อนแมนนวล)
                     let runningDaysOnly = Math.floor((item.limit - currentEOH) / effectiveRate) + offlineInfo.total + dayOffset;
                     let startDate = new Date(baseDate);
                     startDate.setDate(baseDate.getDate() + runningDaysOnly + maintenanceAccumulatedDays);
-
+// คำนวณวันเสร็จสิ้นโดยบวกระยะเวลาซ่อมมาตรฐาน (std) และวันปรับปรุงเพิ่ม (adj)
                     const finishDate = new Date(startDate);
                     finishDate.setDate(startDate.getDate() + (item.std + item.adj));
-
+// คำนวณจำนวนวันนับจากวันนี้ (Today) ไปจนถึงวันเริ่มซ่อมบำรุง เพื่อนำไปแสดงผลบนหน้าจอ
                     const diffDaysToDisplay = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24));
                     
                     dayEl.innerText = `${diffDaysToDisplay.toLocaleString()} วัน`;
                     startEl.innerText = "เริ่ม: " + startDate.toLocaleDateString('th-TH');
                     finishEl.innerText = "เสร็จ: " + finishDate.toLocaleDateString('th-TH');
-
+// สะสมจำนวนวันหยุดซ่อมบำรุง เพื่อนำไปทบเป็นวันเริ่มต้นของรอบซ่อมประเภทถัดไปในลูป
                     maintenanceAccumulatedDays += (item.std + item.adj);
-
+// หากเหลือเวลาไม่ถึง 30 วัน ให้แสดงเอฟเฟกต์การแจ้งเตือนเร่งด่วน (Urgent Warning)
                     if (diffDaysToDisplay <= 30 && diffDaysToDisplay > 0) {
                         cardEl.classList.add('urgent-warning');
                     }
                 }
             });
-
+// คำนวณ % Progress ของชั่วโมงเดินเครื่องเทียบกับเป้าหมายสูงสุดที่ 36,000 ชั่วโมง (Type C)
             const progressPercent = Math.min(100, (currentEOH / 36000) * 100).toFixed(1);
             document.getElementById('timeline-bar').style.width = `${progressPercent}%`;
             document.getElementById('overall-progress-text').innerText = `Progress to 36k: ${progressPercent}%`;
-
+// กระบวนการยิงข้อมูลบันทึกลง Google Sheets เมื่อกดปุ่ม "บันทึกข้อมูล" (shouldSaveToSheet = true)
             if (shouldSaveToSheet) {
                 const btn = document.getElementById('btnSave');
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
                 btn.disabled = true;
-                try {
+                try {// ส่งข้อมูลแบบ POST Request ในรูปแบบ JSON ไปยัง Google Apps Script Web App
                     await fetch(SCRIPT_URL, {
                         method: 'POST',
                         body: JSON.stringify({
@@ -582,7 +623,11 @@
                 }
             }
         }
-
+/**
+     * Event Listener: window.onload
+     * หน้าที่: ทำงานอัตโนมัติทันทีเมื่อเว็บเพจโหลดเสร็จสิ้น 
+     * โดยจะดึงข้อมูลเก่าจาก LocalStorage (ถ้ามี) และดึงข้อมูลตัวนับรอบล่าสุดจาก Google Sheets มาเซ็ตให้หน้าจอพร้อมใช้งาน
+     */
         window.onload = () => {
             restoreInputData();
             fetchCounterInfo();
