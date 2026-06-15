@@ -83,51 +83,58 @@
     </div>
 
     <script>
-        // ลิงก์ App Script ที่คุณให้มา
+        // URL ของ Google Apps Script Web App สำหรับรับ-ส่งข้อมูลรายงานการซ่อมบำรุง
         const REPORT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby8CN8DE_Dw0aZpDvE_j021rd5H_uB8NWtFvOwwuF8AE2kKYw1SdIUTdWakcZ8S9Ts/exec';
-
+// กำหนดให้วันที่บันทึกรายงานตั้งต้นเป็นวันปัจจุบัน (Today) ทันทีที่เปิดหน้าเว็บ
         document.getElementById('reportDate').valueAsDate = new Date();
-
+/**
+         * ฟังก์ชันดึงจำนวนครั้ง (Set) ล่าสุดของการซ่อมบำรุงแต่ละประเภทจาก Google Sheets
+         * เพื่อนำมาบวกเพิ่มอีก 1 (+1) และแสดงผลบนอินพุตช่อง 'maintSet' โดยอัตโนมัติ
+         */
         async function autoFetchSetNumber() {
             const typeFull = document.getElementById('maintType').value;
-            const typeKey = typeFull.replace("Type ", "").trim();
+            const typeKey = typeFull.replace("Type ", "").trim();// ตัดคำว่า "Type " ออกให้เหลือเฉพาะ A1, B, A2, C เพื่อใช้เป็น Key
             try {
                 const res = await fetch(REPORT_SCRIPT_URL);
                 const counts = await res.json();
-                // แสดงผล Set ล่าสุด + 1
+                // แสดงผลลัพธ์รอบล่าสุด + 1 (หากยังไม่มีข้อมูลในระบบจะเริ่มต้นที่ 1)
                 document.getElementById('maintSet').value = (counts[typeKey] || 0) + 1;
             } catch (e) { 
                 console.error('Fetch Counter Error:', e);
             }
         }
-
+// เมื่อหน้าเว็บโหลดเสร็จ ให้เรียกฟังก์ชันคำนวณจำนวนครั้ง (Set) ของ Type ที่เลือกอยู่ทันที
         window.onload = autoFetchSetNumber;
-
+/**
+         * ฟังก์ชันตรวจสอบความถูกต้องของข้อมูล (Validation) คำนวณระยะเวลา 
+         * และยิงข้อมูลรายงาน (POST) ไปบันทึกใน Google Sheets
+         */
         async function executeSubmit() {
             const startDate = document.getElementById('startDate').value;
             const startTime = document.getElementById('startTime').value || '00:00';
             const finishDate = document.getElementById('finishDate').value;
             const finishTime = document.getElementById('finishTime').value || '00:00';
-
+// 1. ตรวจสอบว่าผู้ใช้เลือกทั้งวันเริ่มและวันเสร็จสิ้นแล้วหรือไม่
             if (!startDate || !finishDate) {
                 Swal.fire('คำเตือน', 'กรุณาระบุวันที่เริ่มและวันที่เสร็จสิ้น', 'warning');
                 return;
             }
-
+// รวมวันและเวลาเข้าด้วยกันเพื่อนำไปทำเป็น Date Object
             const fullStart = `${startDate} ${startTime}`;
             const fullFinish = `${finishDate} ${finishTime}`;
 
             const startObj = new Date(fullStart);
             const finishObj = new Date(fullFinish);
-            const diffMs = finishObj - startObj;
-            const diffDays = diffMs / (1000 * 60 * 60 * 24);
-
+            const diffMs = finishObj - startObj;// คำนวณผลต่างเป็นมิลลิวินาที
+            const diffDays = diffMs / (1000 * 60 * 60 * 24);// แปลงผลต่างจากมิลลิวินาทีให้เป็นจำนวนวัน
+// 2. ตรวจสอบลำดับของวันที่ (วันเสร็จสิ้นต้องไม่มาก่อนวันเริ่มต้น)
             if (diffDays < 0) {
                 Swal.fire('ข้อผิดพลาด', 'วันที่เสร็จสิ้นต้องไม่มาก่อนวันที่เริ่ม', 'error');
                 return;
             }
 
             const btn = document.getElementById('btnSubmit');
+            // เตรียมโครงสร้างข้อมูล JSON Object สำหรับส่งไปยัง Google Apps Script
             const data = {
                 reportDate: document.getElementById('reportDate').value,
                 type: document.getElementById('maintType').value,
@@ -137,19 +144,19 @@
                 duration: parseFloat(diffDays.toFixed(2)),
                 comment: document.getElementById('comment').value
             };
-            
+            // เปลี่ยนสถานะปุ่มเป็นกำลังโหลด เพื่อป้องกันผู้ใช้กดเบิ้ล (Double Submit)
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
 
-            try {
+            try {// ยิงคำขอ POST Request ส่งข้อมูลแบบ JSON ไปยัง Apps Script ลิงก์ปลายทาง
                 await fetch(REPORT_SCRIPT_URL, { 
                     method: 'POST', 
-                    mode: 'no-cors', 
+                    mode: 'no-cors', // ใช้ mode no-cors เพื่อข้ามข้อจำกัด Cross-Origin สำหรับโครงสร้างแบบ Apps Script Endpoint
                     cache: 'no-cache',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data) 
                 });
-
+// แสดงกล่องแจ้งเตือนเมื่อทำการบันทึกสำเร็จ
                 Swal.fire({ 
                     icon: 'success', 
                     title: 'สำเร็จ!', 
@@ -163,7 +170,7 @@
             } catch (e) { 
                 console.error('Submit Error:', e);
                 Swal.fire('Error', 'ไม่สามารถเชื่อมต่อกับระบบได้ กรุณาลองใหม่อีกครั้ง', 'error');
-                btn.disabled = false;
+                btn.disabled = false;// คืนสถานะปุ่มให้กลับมาพร้อมใช้งานหากเกิดความผิดพลาดในการส่งข้อมูล
                 btn.innerHTML = '<i class="fas fa-save mr-2"></i> บันทึกรายงาน';
             }
         }
